@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,7 +7,7 @@ import {
   SafeAreaView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 
 // Components
 import ExamInfoSection from "../../components/answerKey/ExamInfoSection";
@@ -29,11 +29,19 @@ import {
 
 export default function CreateAnswerKeyScreen() {
   const router = useRouter();
+  const { examCode } = useLocalSearchParams<{ examCode?: string }>();
 
   // Sử dụng fake data hoặc empty data
   const [examData, setExamData] = useState<AnswerKeyData>(emptyAnswerKeyData);
   // Uncomment dòng dưới để sử dụng fake data có sẵn đáp án
   // const [examData, setExamData] = useState<AnswerKeyData>(fakeAnswerKeyData);
+
+  // Set exam code from navigation params
+  useEffect(() => {
+    if (examCode) {
+      setExamData((prev) => ({ ...prev, examCode }));
+    }
+  }, [examCode]);
 
   const handleExamCodeChange = (code: string) => {
     setExamData((prev) => ({ ...prev, examCode: code }));
@@ -93,8 +101,11 @@ export default function CreateAnswerKeyScreen() {
           className="flex-row items-center mr-2"
         >
           <Ionicons name="arrow-back" size={24} color="#292D32" />
-          <Text className="text-xl font-normal text-black ml-2">
-            Quay lại | Đáp án |
+          <Text
+            className="text-xl font-normal text-black ml-2"
+            style={{ fontFamily: "Questrial" }}
+          >
+            Quay lại | Đáp án {examCode ? `| Mã đề: ${examCode}` : ""}
           </Text>
         </TouchableOpacity>
 
