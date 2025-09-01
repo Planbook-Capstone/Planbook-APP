@@ -57,6 +57,9 @@ export default function RootLayout() {
               options={{
                 title: "Lịch sử giao dịch",
                 headerBackTitle: "Profile",
+                headerStyle: {
+                  backgroundColor: "#fff", // nền trắng
+                },
               }}
             />
             <Stack.Screen name="+not-found" />

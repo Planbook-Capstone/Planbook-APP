@@ -112,7 +112,7 @@ const ProfileScreen = () => {
   ];
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-100 mb-[100px] font">
+    <SafeAreaView className="flex-1 bg-gray-100 pb-[100px] font">
       <ScrollView>
         {/* Phần Header - ĐÃ CẬP NHẬT DÙNG ẢNH NỀN */}
         <View className="relative items-center">
