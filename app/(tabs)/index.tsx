@@ -1,3 +1,6 @@
+import Banner from "@/components/organisms/banner";
+import HistoryItem from "@/components/organisms/history-item";
+import ToolCard from "@/components/organisms/tool-card";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
@@ -15,7 +18,7 @@ interface Tool {
   id: number;
   title: string;
   description: string;
-  icon: string;
+  icon?: string;
   color: string;
 }
 
@@ -27,62 +30,15 @@ interface History {
 
 // --- Reusable Components --- //
 
-const ToolCard = ({ tool, onPress }: { tool: Tool; onPress: () => void }) => (
-  <TouchableOpacity
-    onPress={onPress}
-    className="bg-white rounded-2xl p-4 border border-gray-200/80 flex-row items-center shadow-sm active:bg-gray-100"
-  >
-    <View
-      className={`w-12 h-12 ${tool.color} rounded-lg items-center justify-center mr-4`}
-    >
-      <Text className="text-2xl">{tool.icon}</Text>
-    </View>
-    <View className="flex-1">
-      <Text className="text-base font-semibold text-gray-800">
-        {tool.title}
-      </Text>
-      <Text className="text-gray-500 text-sm mt-1" numberOfLines={2}>
-        {tool.description}
-      </Text>
-    </View>
-  </TouchableOpacity>
-);
-
-const HistoryItem = ({ item, isLast }: { item: History; isLast: boolean }) => (
-  <View
-    className={`flex-row items-center p-4 ${
-      !isLast ? "border-b border-gray-100" : ""
-    }`}
-  >
-    <Text
-      className="flex-1 text-gray-800 text-sm font-medium"
-      numberOfLines={1}
-    >
-      {item.func}
-    </Text>
-    <View className="w-24 flex-row justify-end items-center">
-      <Text className="text-gray-600 text-sm font-semibold mr-1">
-        {item.token}
-      </Text>
-      <Image
-        source={require("@/assets/images/flash.png")}
-        height={24}
-        width={24}
-      />
-    </View>
-  </View>
-);
-
 // --- Main Screen Component --- //
 
 export default function HomeScreen() {
   const router = useRouter();
-
   const toolCategory = {
     id: 1,
     title: "Chấm điểm bài thi trắc nghiệm",
     description: "Tự động chấm điểm các bài thi trắc nghiệm từ ảnh chụp",
-    icon: "📚",
+    icon: null,
     color: "bg-green-100",
   };
 
@@ -116,41 +72,19 @@ export default function HomeScreen() {
 
   const ListHeader = () => (
     <View>
-      <View className="p-4 bg-white">
-        <View className="rounded-2xl  py-20 relative overflow-hidden">
-          <Image
-            source={require("@/assets/images/background.png")}
-            style={{
-              width: "100%",
-              height: 200,
-              position: "absolute",
-              top: 0,
-              left: 0,
-            }}
-            resizeMode="cover" // Đảm bảo ảnh che phủ toàn bộ khu vực
-          />
-          <View className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full" />
-          <View className="absolute -bottom-12 -left-10 w-32 h-32 bg-white/10 rounded-full" />
-          <Text className="text-white text-center text-2xl font-bold mb-2">
-            Chào mừng minhloia
-          </Text>
-          <Text className="text-blue-200 text-sm text-center">
-            Khám phá các công cụ AI cho giáo dục
-          </Text>
-        </View>
+      <View className="p-2 py-5 bg-white">
+        <Banner />
       </View>
 
-      <View className="px-4 mb-6">
+      <View className="px-2 mb-6">
         <ToolCard
           tool={toolCategory}
           onPress={() => router.push("/(grading)")}
         />
       </View>
 
-    
-
       <View className="px-4 mb-3 flex-row items-center justify-between">
-        <Text className="text-xl font-bold text-gray-800">Lịch sử</Text>
+        <Text className="text-2xl font-calsans ">Lịch sử</Text>
         <TouchableOpacity className="bg-white border border-gray-200 rounded-lg px-3 py-1.5 flex-row items-center">
           <Text className="text-sm text-gray-700 mr-1.5">Tất cả</Text>
           <Ionicons name="chevron-down" size={16} color="#6b7280" />
@@ -180,10 +114,8 @@ export default function HomeScreen() {
           </View>
           <Text className="text-xl font-bold text-gray-800">PlanBook</Text>
         </View>
-        <View className="bg-blue-100 rounded-full pl-3 pr-2 py-1 flex-row items-center">
-          <Text className="text-blue-800 font-semibold text-xs mr-1">
-            10000
-          </Text>
+        <View className="bg-blue-100 rounded-full py-1 px-2 flex-row items-center gap-0.5">
+          <Text className=" font-calsans text-lg pl-1.5">10000</Text>
           <Image
             source={require("@/assets/images/flash.png")}
             height={24}
