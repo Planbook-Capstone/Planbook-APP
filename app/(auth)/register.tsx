@@ -104,8 +104,10 @@ const RegisterScreen = () => {
               style={styles.container} // Chuyển padding vào đây
               keyboardShouldPersistTaps="handled" // Giúp các nút trong ScrollView vẫn bấm được
             >
-              <Text style={styles.title}>Tạo tài khoản mới</Text>
-              <Text style={styles.subtitle}>
+              <Text style={styles.title} className="font-calsans">
+                Tạo tài khoản mới
+              </Text>
+              <Text style={styles.subtitle} className="font-questrial">
                 Điền thông tin để tạo tài khoản mới.
               </Text>
 
@@ -241,17 +243,26 @@ const RegisterScreen = () => {
                   <ActivityIndicator color="white" />
                 ) : (
                   <>
-                    <Text style={styles.loginButtonText}>Đăng ký</Text>
+                    <Text
+                      style={styles.loginButtonText}
+                      className="font-questrial"
+                    >
+                      Đăng ký
+                    </Text>
                     <Ionicons name="arrow-forward" size={24} color="white" />
                   </>
                 )}
               </TouchableOpacity>
 
               <View style={styles.signupContainer}>
-                <Text style={styles.signupText}>Đã có tài khoản? </Text>
+                <Text style={styles.signupText} className="font-questrial">
+                  Đã có tài khoản?{" "}
+                </Text>
                 <Link href="/login" asChild>
                   <TouchableOpacity>
-                    <Text style={styles.signupLink}>Đăng ký ngay</Text>
+                    <Text style={styles.signupLink} className="font-calsans">
+                      Đăng ký ngay
+                    </Text>
                   </TouchableOpacity>
                 </Link>
               </View>
@@ -275,7 +286,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginLeft: 5,
   },
-  rootContainer: { flex: 1, backgroundColor: "white"},
+  rootContainer: { flex: 1, backgroundColor: "white" },
   safeArea: { flex: 1 },
   container: { paddingHorizontal: 20 },
   title: { fontSize: 28, fontWeight: "bold", color: "#333", marginBottom: 8 },
@@ -298,7 +309,7 @@ const styles = StyleSheet.create({
   passwordInput: { flex: 1, paddingVertical: 15, fontSize: 16 },
   loginButton: {
     flexDirection: "row",
-    justifyContent: "center",
+    justifyContent: "space-between",
     alignItems: "center",
     backgroundColor: "#4dd0e1",
     borderRadius: 10,
