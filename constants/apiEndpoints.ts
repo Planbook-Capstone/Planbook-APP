@@ -17,7 +17,7 @@ export const API_ENDPOINTS = {
     ServicePaths.IDENTITY_SERVICE,
     "/wallets/transactions"
   ),
-
+  TOOL_LOG: buildEndpoint(ServicePaths.TOOL_LOG, "/tool-logs"),
   ACADEMIC_RESOURSE_INTERNAL: buildEndpoint(
     ServicePaths.ACADEMIC_RESOURCE,
     "/academic-resources/internal"
