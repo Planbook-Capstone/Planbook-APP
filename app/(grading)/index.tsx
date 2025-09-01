@@ -45,28 +45,30 @@ const MOCK_HISTORY = [
   },
 ];
 
+const HistoryCard = ({ item }: any) => {
+  const router = useRouter();
 
-
-const HistoryCard = ({ item }: any) => (
-  <TouchableOpacity className="bg-white rounded-2xl p-6 mb-5 border border-gray-200 overflow-hidden">
-    <ImageBackground
-      source={require("@/assets/images/card-bg-1.png")}
-      className="absolute top-0 left-0 right-0 bottom-0 opacity-15"
-      resizeMode="cover"
-    />
-    <View className="flex-row justify-between items-center mb-3">
-      <Text className="text-lg font-bold text-gray-900">
-        {item.title}
-      </Text>
-      <View className="flex-row items-center space-x-1">
-        <Ionicons name="time-outline" size={16} color="#6b7280" />
-        <Text className="text-sm text-gray-500">{item.date}</Text>
+  return (
+    <TouchableOpacity
+      className="bg-white rounded-2xl p-6 mb-5 border border-gray-200 overflow-hidden"
+      onPress={() => router.push("/gradingMenu")}
+    >
+      <ImageBackground
+        source={require("@/assets/images/card-bg-1.png")}
+        className="absolute top-0 left-0 right-0 bottom-0 opacity-15"
+        resizeMode="cover"
+      />
+      <View className="flex-row justify-between items-center mb-3">
+        <Text className="text-lg font-bold text-gray-900">{item.title}</Text>
+        <View className="flex-row items-center space-x-1">
+          <Ionicons name="time-outline" size={16} color="#6b7280" />
+          <Text className="text-sm text-gray-500">{item.date}</Text>
+        </View>
       </View>
-    </View>
-    <Text className="text-base text-gray-700">Số câu: {item.questions}</Text>
-  </TouchableOpacity>
-);
-
+      <Text className="text-base text-gray-700">Số câu: {item.questions}</Text>
+    </TouchableOpacity>
+  );
+};
 
 export default function GradingHistoryScreen() {
   const router = useRouter();

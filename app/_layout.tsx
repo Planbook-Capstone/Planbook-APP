@@ -27,6 +27,7 @@ export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
     // 4. Sửa lại đường link uri cho đúng
     Questrial: require("../assets/fonts/Questrial-Regular.ttf"),
+    CalSans: require("../assets/fonts/CalSans-Regular.ttf"),
   });
 
   // 5. Dùng useEffect để ẩn màn hình chờ khi font đã tải xong
