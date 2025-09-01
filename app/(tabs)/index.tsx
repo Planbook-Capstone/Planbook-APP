@@ -116,7 +116,7 @@ export default function HomeScreen() {
 
   const ListHeader = () => (
     <View>
-      <View className="p-4 ">
+      <View className="p-4 bg-white">
         <View className="rounded-2xl  py-20 relative overflow-hidden">
           <Image
             source={require("@/assets/images/background.png")}
@@ -143,7 +143,7 @@ export default function HomeScreen() {
       <View className="px-4 mb-6">
         <ToolCard
           tool={toolCategory}
-          onPress={() => router.push("/scanExam")}
+          onPress={() => router.push("/(grading)")}
         />
       </View>
 
@@ -165,7 +165,7 @@ export default function HomeScreen() {
     ) : null;
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-100">
+    <SafeAreaView className="flex-1 bg-white pb-[100px]">
       <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-100">
         <View className="flex-row items-center">
           <View className="w-8 h-8 rounded-lg items-center justify-center mr-2">

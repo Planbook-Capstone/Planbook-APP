@@ -52,16 +52,20 @@ export default function RootLayout() {
           <Stack>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            <Stack.Screen name="(grading)" options={{ headerShown: false }} />
+
             <Stack.Screen
               name="walletHistory"
               options={{
                 title: "Lịch sử giao dịch",
-                headerBackTitle: "Profile",
+                headerBackTitle: "Quay lại",
                 headerStyle: {
                   backgroundColor: "#fff", // nền trắng
                 },
+                 headerTintColor: "#000",
               }}
             />
+        
             <Stack.Screen name="+not-found" />
             <Stack.Screen name="omrPage" options={{ headerShown: false }} />
             <Stack.Screen name="scanExam" options={{ headerShown: false }} />

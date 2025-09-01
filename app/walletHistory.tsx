@@ -96,7 +96,7 @@ const FilterBar = ({
   selectedValue: string;
   onSelect: (value: string) => void;
 }) => (
-  <View className="flex-row items-center p-2 bg-gray-50">
+  <View className="flex-row items-center p-2 bg-white">
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
@@ -107,7 +107,7 @@ const FilterBar = ({
           key={option.value}
           onPress={() => onSelect(option.value)}
           className={`px-4 py-2 rounded-full mr-2 ${
-            selectedValue === option.value ? "bg-blue-500" : "bg-white"
+            selectedValue === option.value ? "bg-blue-500" : "bg-gray-50"
           }`}
         >
           <Text
