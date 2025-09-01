@@ -62,13 +62,17 @@ export default function RootLayout() {
                 headerStyle: {
                   backgroundColor: "#fff", // nền trắng
                 },
-                 headerTintColor: "#000",
+                headerTintColor: "#000",
               }}
             />
-        
+
             <Stack.Screen name="+not-found" />
             <Stack.Screen name="omrPage" options={{ headerShown: false }} />
             <Stack.Screen name="scanExam" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="createAnswerKey"
+              options={{ headerShown: false }}
+            />
           </Stack>
 
           <StatusBar style="auto" />

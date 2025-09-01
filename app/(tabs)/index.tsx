@@ -86,6 +86,14 @@ export default function HomeScreen() {
     color: "bg-green-100",
   };
 
+  const answerKeyTool = {
+    id: 2,
+    title: "Tạo đáp án bài thi",
+    description: "Tạo đáp án cho các bài thi trắc nghiệm và đúng/sai",
+    icon: "📝",
+    color: "bg-blue-100",
+  };
+
   const initialHistory = [
     { id: "1", func: "Tạo đề kiểm tra", token: "5" },
     { id: "2", func: "Tạo slide bài giảng", token: "8" },
@@ -144,6 +152,13 @@ export default function HomeScreen() {
         <ToolCard
           tool={toolCategory}
           onPress={() => router.push("/(grading)")}
+        />
+      </View>
+
+      <View className="px-4 mb-6">
+        <ToolCard
+          tool={answerKeyTool}
+          onPress={() => router.push("/createAnswerKey")}
         />
       </View>
 
