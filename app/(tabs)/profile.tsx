@@ -30,7 +30,7 @@ const InfoRow = ({
   label: string;
   value: string | null | undefined;
 }) => (
-  <View className="flex-row justify-between items-center py-3 border-b border-gray-100">
+  <View className="flex-row justify-between items-center py-3 border-b border-gray-100 ">
     <Text className="text-base text-gray-500">{label}</Text>
     <Text className="text-base font-semibold text-gray-800">
       {value || "Chưa cập nhật"}
@@ -163,7 +163,7 @@ const ProfileScreen = () => {
 
             <TouchableOpacity
               className="px-4 py-2 rounded-full bg-blue-100"
-                onPress={() => router.push('/walletHistory')}
+              onPress={() => router.push("/walletHistory")}
             >
               <Text className="font-semibold text-blue-600">Xem lịch sử</Text>
             </TouchableOpacity>
@@ -171,12 +171,12 @@ const ProfileScreen = () => {
         </View>
 
         {/* PHẦN THÔNG TIN CÁ NHÂN MỚI */}
-        <View className="p-5 mx-4 mt-6 bg-white rounded-xl shadow-lg">
-          <Text className="text-lg font-bold text-gray-800 mb-2">
+        <View className="p-5 mx-4 mt-6 bg-white rounded-xl shadow-lg ">
+          <Text className="text-lg font-calsans text-gray-800 mb-2">
             Thông tin cá nhân
           </Text>
           {/* <InfoRow label="Họ và tên" value={user?.fullName} /> */}
-          <InfoRow label="Email" value={user?.email} />
+          <InfoRow label="Email" value={user?.email}/>
           <InfoRow label="Số điện thoại" value={user?.phone} />
           <InfoRow label="Ngày sinh" value={formatBirthday(user?.birthday)} />
           <InfoRow label="Giới tính" value={displayGender(user?.gender)} />

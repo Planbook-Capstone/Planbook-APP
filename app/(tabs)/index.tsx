@@ -1,6 +1,7 @@
 import Banner from "@/components/organisms/banner";
 import HistoryItem from "@/components/organisms/history-item";
 import ToolCard from "@/components/organisms/tool-card";
+import { useWalletService } from "@/services/walletServices";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
@@ -13,22 +14,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-
-interface Tool {
-  id: number;
-  title: string;
-  description: string;
-  icon?: string;
-  color: string;
-}
-
-interface History {
-  id: string;
-  func: string;
-  token: string;
-}
-
-// --- Reusable Components --- //
 
 // --- Main Screen Component --- //
 
@@ -99,7 +84,7 @@ export default function HomeScreen() {
         <ActivityIndicator size="small" color="#6b7280" />
       </View>
     ) : null;
-
+  const { data: wallet } = useWalletService();
   return (
     <SafeAreaView className="flex-1 bg-white pb-[100px]">
       <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-100">
@@ -115,7 +100,10 @@ export default function HomeScreen() {
           <Text className="text-xl font-bold text-gray-800">PlanBook</Text>
         </View>
         <View className="bg-blue-100 rounded-full py-1 px-2 flex-row items-center gap-0.5">
-          <Text className=" font-calsans text-lg pl-1.5">10000</Text>
+          <Text className=" font-calsans text-lg pl-1.5">
+            {" "}
+            {wallet?.data?.balance || 0}
+          </Text>
           <Image
             source={require("@/assets/images/flash.png")}
             height={24}
