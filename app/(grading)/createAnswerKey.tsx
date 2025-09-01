@@ -10,10 +10,10 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
 // Components
-import ExamInfoSection from "../components/answerKey/ExamInfoSection";
-import MultipleChoiceSection from "../components/answerKey/MultipleChoiceSection";
-import TrueFalseSection from "../components/answerKey/TrueFalseSection";
-import EssaySection from "../components/answerKey/EssaySection";
+import ExamInfoSection from "../../components/answerKey/ExamInfoSection";
+import MultipleChoiceSection from "../../components/answerKey/MultipleChoiceSection";
+import TrueFalseSection from "../../components/answerKey/TrueFalseSection";
+import EssaySection from "../../components/answerKey/EssaySection";
 
 // Data
 import {
@@ -25,7 +25,7 @@ import {
   type Question,
   type TrueFalseQuestion,
   type EssayQuestion,
-} from "../data/answerKeyData";
+} from "../../data/answerKeyData";
 
 export default function CreateAnswerKeyScreen() {
   const router = useRouter();

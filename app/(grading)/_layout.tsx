@@ -7,7 +7,7 @@ export default function GradingLayout() {
       <Stack.Screen
         name="index"
         options={{
-          headerShown: false
+          headerShown: false,
           // title: "Phiên chấm điểm",
           // headerBackTitle: "Quay lại",
           // headerStyle: {
@@ -16,10 +16,22 @@ export default function GradingLayout() {
           // headerTintColor: "#000", // màu chữ + icon
         }}
       />
-       <Stack.Screen
+      <Stack.Screen
         name="create-session"
         options={{
           title: "Tạo mới phiên chấm",
+          headerBackTitle: "Quay lại",
+          headerStyle: {
+            backgroundColor: "#fff", // nền trắng
+          },
+          headerTintColor: "#000", // màu chữ + icon
+        }}
+      />
+
+      <Stack.Screen
+        name="createAnswerKey"
+        options={{
+          title: "Tạo đáp án",
           headerBackTitle: "Quay lại",
           headerStyle: {
             backgroundColor: "#fff", // nền trắng
