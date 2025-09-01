@@ -1,10 +1,12 @@
 import Banner from "@/components/organisms/banner";
 import HistoryItem from "@/components/organisms/history-item";
 import ToolCard from "@/components/organisms/tool-card";
+import { useToolLogsWithParamsService } from "@/services/toolLogServices";
 import { useWalletService } from "@/services/walletServices";
+import { useAuthStore } from "@/store/authStore";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -27,33 +29,66 @@ export default function HomeScreen() {
     color: "bg-green-100",
   };
 
-  const initialHistory = [
-    { id: "1", func: "Tạo đề kiểm tra", token: "5" },
-    { id: "2", func: "Tạo slide bài giảng", token: "8" },
-    { id: "3", func: "Trộn đề thi theo ma t...", token: "10" },
-    { id: "4", func: "Tạo đề kiểm tra", token: "15" },
-    { id: "5", func: "Tạo đề kiểm tra", token: "11" },
-    { id: "6", func: "Tạo giáo án", token: "9" },
-    { id: "7", func: "Tạo đề kiểm tra", token: "5" },
-    { id: "8", func: "Tạo slide bài giảng", token: "8" },
-  ];
+  // --- Pagination states ---
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 20;
+  const [historyData, setHistoryData] = useState<any[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const [hasMoreData, setHasMoreData] = useState(true);
+  const { user } = useAuthStore();
 
-  const [historyData, setHistoryData] = useState(initialHistory);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  // Call API lấy lịch sử tool log
+  const { data: toolLogs, isLoading: isLoadingToolLogs } =
+    useToolLogsWithParamsService(
+      [currentPage, pageSize],
+      { retry: 1, staleTime: 0 },
+      {
+        userId: user?.id,
+        offset: (currentPage - 1) * pageSize,
+        pageSize,
+        sortBy: "createdAt",
+        sortDirection: "desc",
+      }
+    );
 
+  // Gộp data khi phân trang hoặc refresh
+  useEffect(() => {
+    if (toolLogs?.data?.content) {
+      // Kiểm tra nếu không có dữ liệu trả về hoặc ít hơn pageSize thì đã hết data
+      if (toolLogs.data.content.length === 0 || toolLogs.data.content.length < pageSize) {
+        setHasMoreData(false);
+      } else {
+        setHasMoreData(true);
+      }
+
+      if (currentPage === 1) {
+        setHistoryData(toolLogs.data.content);
+      } else {
+        setHistoryData((prev) => [...prev, ...toolLogs.data.content]);
+      }
+
+      // Debug log
+      console.log(`Received ${toolLogs.data.content.length} items, page ${currentPage}, hasMore: ${toolLogs.data.content.length > 0 && toolLogs.data.content.length >= pageSize}`);
+    }
+  }, [toolLogs, currentPage, pageSize]);
+
+  // Load more khi scroll tới cuối
   const loadMoreHistory = useCallback(() => {
-    if (isLoadingMore) return;
-    setIsLoadingMore(true);
-    setTimeout(() => {
-      const newItems = Array.from({ length: 8 }).map((_, i) => ({
-        id: `${Date.now()}-${i}`,
-        func: `Hoạt động cũ #${historyData.length + i + 1}`,
-        token: `${Math.floor(Math.random() * 10) + 5}`,
-      }));
-      setHistoryData((prev) => [...prev, ...newItems]);
-      setIsLoadingMore(false);
-    }, 1500);
-  }, [isLoadingMore, historyData.length]);
+    // Chỉ load thêm nếu không đang loading, còn dữ liệu phía sau, và có dữ liệu từ API
+    if (!isLoadingToolLogs && hasMoreData && toolLogs?.data?.content) {
+      console.log('Loading more data, current page:', currentPage);
+      setCurrentPage((prev) => prev + 1);
+    }
+  }, [isLoadingToolLogs, hasMoreData, toolLogs?.data?.content, currentPage]);
+
+  // Refresh list
+  const handleRefresh = () => {
+    setRefreshing(true);
+    setCurrentPage(1);
+    setHistoryData([]);
+    setHasMoreData(true); // Reset hasMoreData khi refresh
+    setRefreshing(false);
+  };
 
   const ListHeader = () => (
     <View>
@@ -78,12 +113,26 @@ export default function HomeScreen() {
     </View>
   );
 
-  const ListFooter = () =>
-    isLoadingMore ? (
-      <View className="py-4 items-center">
-        <ActivityIndicator size="small" color="#6b7280" />
-      </View>
-    ) : null;
+  const ListFooter = () => {
+    if (isLoadingToolLogs && currentPage > 1) {
+      return (
+        <View className="py-4 items-center">
+          <ActivityIndicator size="small" color="#6b7280" />
+        </View>
+      );
+    }
+    
+    if (!hasMoreData && historyData.length > 0) {
+      return (
+        <View className="py-4 items-center">
+          <Text className="text-gray-500 text-sm">Đã hiển thị tất cả</Text>
+        </View>
+      );
+    }
+    
+    return null;
+  };
+  
   const { data: wallet } = useWalletService();
   return (
     <SafeAreaView className="flex-1 bg-white pb-[100px]">
@@ -114,16 +163,22 @@ export default function HomeScreen() {
 
       <FlatList
         data={historyData}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id?.toString() || String(item.id)}
         renderItem={({ item, index }) => (
           <HistoryItem item={item} isLast={index === historyData.length - 1} />
         )}
         ListHeaderComponent={ListHeader}
         ListFooterComponent={ListFooter}
         onEndReached={loadMoreHistory}
-        onEndReachedThreshold={0.5}
+        onEndReachedThreshold={0.3} // Giảm xuống để trigger sớm hơn
+        onRefresh={handleRefresh}
+        refreshing={refreshing}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
+        removeClippedSubviews={false} // Đảm bảo render đúng trên Android
+        maxToRenderPerBatch={10} // Tối ưu hiệu suất
+        windowSize={10} // Tối ưu hiệu suất
+        initialNumToRender={10} // Số lượng item render ban đầu
       />
     </SafeAreaView>
   );
