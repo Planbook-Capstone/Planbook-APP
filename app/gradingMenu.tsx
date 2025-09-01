@@ -51,11 +51,6 @@ export default function GradingMenuScreen() {
 
   const menuItems = [
     {
-      icon: <Ionicons name="key-outline" size={24} color="#292D32" />,
-      title: "Đáp án",
-      onPress: () => router.push("/createAnswerKey"),
-    },
-    {
       icon: <MaterialIcons name="qr-code-scanner" size={24} color="#292D32" />,
       title: "Chấm điểm",
       onPress: () => router.push("/scanExam"),
@@ -72,8 +67,13 @@ export default function GradingMenuScreen() {
     },
     {
       icon: <Ionicons name="send-outline" size={24} color="#292D32" />,
-      title: "Xuất kết quả",
+      title: "Đáp án",
       onPress: () => router.push("/exportResults"),
+    },
+    {
+      icon: <Ionicons name="download-outline" size={24} color="#292D32" />,
+      title: "Xuất kết quả",
+      onPress: () => router.push("/exportResultsOld"),
     },
     {
       icon: (
