@@ -1,0 +1,80 @@
+{
+  "expo": {
+    "name": "PlanBookAI",
+    "slug": "PlanBookAI",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "planbookai",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.minhlola28.planbookai",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Ứng dụng cần truy cập camera để chụp ảnh.",
+        "NSMicrophoneUsageDescription": "Ứng dụng cần sử dụng micro để quay video.",
+        "NSPhotoLibraryAddUsageDescription": "Cho phép ứng dụng lưu ảnh vào thư viện ảnh của bạn.",
+        "NSPhotoLibraryUsageDescription": "Cho phép ứng dụng truy cập ảnh để xử lý và lưu trữ."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.minhlola28.planbookai"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.797331175606-hg88ji7avgl4in51p3k2hhuom9ofm6i5"
+        }
+      ],
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow PlanBook to access your camera to take photos",
+          "microphonePermission": "Allow PlanBook to access your microphone for video recording",
+          "recordAudioAndroid": true
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow PlanBook to access your photos to save captured images",
+          "savePhotosPermission": "Allow PlanBook to save photos to your gallery",
+          "isAccessMediaLocationEnabled": true
+        }
+      ],
+      "expo-web-browser",
+      "expo-secure-store"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "353b714a-389c-48af-9b27-1ae59c8b06dc"
+      }
+    }
+  }
+}
