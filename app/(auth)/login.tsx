@@ -4,32 +4,32 @@ import { saveTokens } from "@/utils/tokenStorage"; // 1. Import getTokens từ f
 import { Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-    GoogleSignin,
-    statusCodes,
+  GoogleSignin,
+  statusCodes,
 } from "@react-native-google-signin/google-signin";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, router } from "expo-router";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
-    ActivityIndicator,
-    Keyboard,
-    KeyboardAvoidingView,
-    Platform,
-    SafeAreaView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    TouchableWithoutFeedback,
-    View,
+  ActivityIndicator,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
 } from "react-native";
 import { showMessage } from "react-native-flash-message";
 import { supabase } from "../../config/supabaseClient";
 import {
-    LoginSchema,
-    type LoginFormData,
+  LoginSchema,
+  type LoginFormData,
 } from "../../schemas/auth/loginSchema";
 
 const LoginScreen = () => {
@@ -219,8 +219,10 @@ const LoginScreen = () => {
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <View style={styles.container}>
               {/* Nội dung form của bạn nằm ở đây */}
-              <Text style={styles.title}>Chào mừng quay trở lại</Text>
-              <Text style={styles.subtitle}>
+              <Text style={styles.title} className="font-calsans">
+                Chào mừng quay trở lại
+              </Text>
+              <Text style={styles.subtitle} className="font-questrial">
                 Nhập tài khoản và mật khẩu để đăng nhập vào hệ thống.
               </Text>
 
@@ -262,7 +264,7 @@ const LoginScreen = () => {
                     >
                       <Ionicons
                         name={
-                          passwordVisible ? "eye-off-outline" : "eye-outline"
+                          !passwordVisible ? "eye-off-outline" : "eye-outline"
                         }
                         size={24}
                         color="#9e9e9e"
@@ -284,7 +286,12 @@ const LoginScreen = () => {
                   <ActivityIndicator color="white" />
                 ) : (
                   <>
-                    <Text style={styles.loginButtonText}>Đăng nhập</Text>
+                    <Text
+                      style={styles.loginButtonText}
+                      className="font-questrial"
+                    >
+                      Đăng nhập
+                    </Text>
                     <Ionicons name="arrow-forward" size={24} color="white" />
                   </>
                 )}
@@ -295,18 +302,30 @@ const LoginScreen = () => {
                 onPress={handleGoogleLogin}
                 style={styles.googleButton}
               >
-                <Text style={styles.googleButtonText}>Tiếp tục với Google</Text>
+                <Text className="font-questrial text-lg">
+                  Tiếp tục với Google
+                </Text>
+
                 <Ionicons name="arrow-forward" size={24} color="#757575" />
               </TouchableOpacity>
 
               <TouchableOpacity>
-                <Text style={styles.forgotPassword}>Quên mật khẩu</Text>
+                <Text
+                  style={styles.forgotPassword}
+                  className="font-questrial py-6"
+                >
+                  Quên mật khẩu
+                </Text>
               </TouchableOpacity>
               <View style={styles.signupContainer}>
-                <Text style={styles.signupText}>Bạn chưa có tài khoản? </Text>
+                <Text style={styles.signupText} className="font-questrial">
+                  Bạn chưa có tài khoản?{" "}
+                </Text>
                 <Link href="/register" asChild>
                   <TouchableOpacity>
-                    <Text style={styles.signupLink}>Đăng ký ngay</Text>
+                    <Text style={styles.signupLink} className="font-calsans">
+                      Đăng ký ngay
+                    </Text>
                   </TouchableOpacity>
                 </Link>
               </View>
@@ -352,7 +371,7 @@ const styles = StyleSheet.create({
   passwordInput: { flex: 1, paddingVertical: 15, fontSize: 16 },
   loginButton: {
     flexDirection: "row",
-    justifyContent: "center",
+    justifyContent: "space-between",
     alignItems: "center",
     backgroundColor: "#4dd0e1",
     borderRadius: 10,
@@ -365,7 +384,8 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 18,
     fontWeight: "bold",
-    marginRight: 10,
+
+    // marginRight: 10,
   },
   googleButton: {
     flexDirection: "row",
@@ -378,19 +398,18 @@ const styles = StyleSheet.create({
     borderColor: "#e0e0e0",
     marginBottom: 20,
   },
-  googleButtonText: { color: "#333", fontSize: 16 },
+  // googleButtonText: { color: "#333", fontSize: 16 },
   forgotPassword: {
     color: "#4dd0e1",
     fontSize: 16,
-    textAlign: "center",
-    marginBottom: 30,
     borderBottomWidth: 1,
     borderColor: "#e0e0e0",
     paddingBottom: 20,
   },
   signupContainer: {
+    paddingTop: 24,
     flexDirection: "row",
-    justifyContent: "center",
+    // justifyContent: "center",
     alignItems: "center",
   },
   signupText: { fontSize: 16, color: "#666" },
