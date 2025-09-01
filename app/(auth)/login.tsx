@@ -231,6 +231,7 @@ const LoginScreen = () => {
                   <TextInput
                     style={styles.input}
                     placeholder="Tên đăng nhập"
+                    placeholderTextColor="#9ca3af"
                     onBlur={onBlur}
                     onChangeText={onChange}
                     value={value}
@@ -250,6 +251,7 @@ const LoginScreen = () => {
                     <TextInput
                       style={styles.passwordInput}
                       placeholder="Mật khẩu"
+                      placeholderTextColor="#9ca3af"
                       secureTextEntry={!passwordVisible}
                       onBlur={onBlur}
                       onChangeText={onChange}

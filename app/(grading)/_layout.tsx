@@ -16,6 +16,17 @@ export default function GradingLayout() {
           // headerTintColor: "#000", // màu chữ + icon
         }}
       />
+       <Stack.Screen
+        name="create-session"
+        options={{
+          title: "Tạo mới phiên chấm",
+          headerBackTitle: "Quay lại",
+          headerStyle: {
+            backgroundColor: "#fff", // nền trắng
+          },
+          headerTintColor: "#000", // màu chữ + icon
+        }}
+      />
     </Stack>
   );
 }

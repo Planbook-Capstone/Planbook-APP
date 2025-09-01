@@ -3,13 +3,13 @@ import { useRouter } from "expo-router";
 import React from "react";
 import {
   FlatList,
+  Image,
+  ImageBackground,
   SafeAreaView,
   Text,
   TextInput,
   TouchableOpacity,
   View,
-  ImageBackground,
-  Image,
 } from "react-native";
 
 const MOCK_HISTORY = [
@@ -95,7 +95,7 @@ export default function GradingHistoryScreen() {
             <Ionicons name="filter" size={20} color="#4b5563" />
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => router.push("/scanExam")}
+            onPress={() => router.push("/(grading)/create-session")}
             className="h-12 w-12 rounded-full overflow-hidden"
           >
             <Image
