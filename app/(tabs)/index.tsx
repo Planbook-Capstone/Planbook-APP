@@ -1,20 +1,15 @@
-import Banner from "@/components/organisms/banner";
 import HistoryItem from "@/components/organisms/history-item";
 import ToolCard from "@/components/organisms/tool-card";
-import { useBookTypesService } from "@/services/bookTypeServices";
 import { useToolLogsWithParamsService } from "@/services/toolLogServices";
 import { useWalletService } from "@/services/walletServices";
 import { useAuthStore } from "@/store/authStore";
-import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
-  Image,
   SafeAreaView,
   Text,
-  TouchableOpacity,
   View,
 } from "react-native";
 
@@ -24,7 +19,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const toolCategory = {
     id: 1,
-    name: "Chấm điểm bài thi trắc nghiệm hihi",
+    title: "Chấm điểm bài thi trắc nghiệm",
     description: "Tự động chấm điểm các bài thi trắc nghiệm từ ảnh chụp",
     icon: null,
     color: "bg-green-100",
@@ -37,12 +32,12 @@ export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [hasMoreData, setHasMoreData] = useState(true);
   const { user } = useAuthStore();
-  const { data: bookTypes, isLoading } = useBookTypesService();
-  const filtered = bookTypes.data.content.filter(
-    (item: any) => item.code === "EXAM_GRADING"
-  );
+  // const { data: bookTypes, isLoading } = useBookTypesService();
+  // const filtered = bookTypes.data.content.filter(
+  //   (item: any) => item.code === "EXAM_GRADING"
+  // );
 
-  console.log("✅ BookTypes lọc theo EXAM_GRADING:", filtered);
+  // console.log("✅ BookTypes lọc theo EXAM_GRADING:", filtered);
 
   // Call API lấy lịch sử tool log
   const { data: toolLogs, isLoading: isLoadingToolLogs } =
@@ -108,26 +103,30 @@ export default function HomeScreen() {
   };
 
   const ListHeader = () => (
-    <View>
-      <View className="p-2 py-5 bg-white">
-        <Banner />
+    <View className="gap-y-3">
+      <View className="p-2  bg-white">
+        {/* <Banner /> */}
+        <View>
+          <Text className="font-questrial text-3xl">
+            Xin chào <Text className="font-calsans">{user?.fullName}</Text>!
+          </Text>
+          <Text className="font-questrial text-neutral-400 text-base pt-1">
+            Trải nghiệm tính năng của chúng tôi
+          </Text>
+        </View>
       </View>
 
-      <View className="px-2 mb-6">
-        <ToolCard
-          tool={filtered[0] || toolCategory}
-          onPress={() =>
-            router.push(`/(grading)?id=${filtered[0]?.id}`)
-          }
-        />
+      <View>
+        <ToolCard tool={toolCategory} onPress={() => {}} />
       </View>
 
       <View className="px-4 mb-3 flex-row items-center justify-between">
-        <Text className="text-2xl font-calsans ">Lịch sử</Text>
-        <TouchableOpacity className="bg-white border border-gray-200 rounded-lg px-3 py-1.5 flex-row items-center">
-          <Text className="text-sm text-gray-700 mr-1.5">Tất cả</Text>
-          <Ionicons name="chevron-down" size={16} color="#6b7280" />
-        </TouchableOpacity>
+        <View>
+          <Text className="text-2xl font-calsans ">Lịch sử</Text>
+          <Text className="text-base font-questrial text-[#878787] ">
+            Lịch sử sử dụng chức năng
+          </Text>
+        </View>
       </View>
     </View>
   );
@@ -155,29 +154,11 @@ export default function HomeScreen() {
   const { data: wallet } = useWalletService();
   return (
     <SafeAreaView className="flex-1 bg-white pb-[100px]">
-      <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-100">
-        <View className="flex-row items-center">
-          <View className="w-8 h-8 rounded-lg items-center justify-center mr-2">
-            <Image
-              source={require("@/assets/images/logo.png")}
-              className="w-8 h-8"
-              height={24}
-              width={24}
-            />
-          </View>
-          <Text className="text-xl font-bold text-gray-800">PlanBook</Text>
-        </View>
-        <View className="bg-blue-100 rounded-full py-1 px-2 flex-row items-center gap-0.5">
-          <Text className=" font-calsans text-lg pl-1.5">
-            {" "}
-            {wallet?.data?.balance || 0}
-          </Text>
-          <Image
-            source={require("@/assets/images/flash.png")}
-            height={24}
-            width={24}
-          />
-        </View>
+      <View className="w-full overflow-hidden pt-10">
+        {/* <MarqueeHeader 
+          text="PLANBOOK PLANBOOK PLANBOOK PLANBOOK"
+          speed={6000}
+        /> */}
       </View>
 
       <FlatList

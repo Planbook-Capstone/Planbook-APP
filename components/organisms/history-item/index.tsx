@@ -45,31 +45,27 @@ const formatVietnameseDateTime = (dateTime: Date | string): string => {
 
 function HistoryItem({ item, isLast }: { item: History; isLast: boolean }) {
   return (
-    <View
-      className={`flex flex-row justify-between items-center p-4 ${
-        !isLast ? "border-b border-gray-100" : ""
-      }`}
-    >
+    <View className={`flex flex-row justify-between items-center p-4 `}>
       <View>
-        <Text className="flex-1 text-lg font-questrial" numberOfLines={1}>
+        <Text className="flex-1 text-xl font-calsans" numberOfLines={1}>
           {getToolActionName(item.code)}
         </Text>
         <Text
-          className="flex-1 text-sm text-neutral-500 font-questrial"
+          className="flex-1 text-base text-neutral-500 font-questrial"
           numberOfLines={1}
         >
           {formatVietnameseDateTime(item?.updatedAt)}
         </Text>
       </View>
       <View className=" flex-row justify-end items-center">
-        <Text className="font-questrial text-sm font-semibold pr-1">
-          {item.tokenUsed}
-        </Text>
         <Image
           source={require("@/assets/images/flash.png")}
           height={24}
           width={24}
         />
+        <Text className="font-calsans text-xl font-semibold pr-1">
+          {item.tokenUsed}
+        </Text>
       </View>
     </View>
   );
