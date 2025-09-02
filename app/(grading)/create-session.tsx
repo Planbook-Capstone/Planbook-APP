@@ -15,7 +15,7 @@ const CreateGradingSessionScreen = () => {
   const [isSBDEnabled, setIsSBDEnabled] = useState(false);
 
   return (
-    <SafeAreaView className="flex-1 bg-white pt-5" edges={["bottom"]}>
+    <SafeAreaView className="flex-1 bg-white pt-8" edges={["bottom"]}>
       <KeyboardAvoidingView
         className="flex-1"
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -23,7 +23,7 @@ const CreateGradingSessionScreen = () => {
       >
         <ScrollView className="flex-1 px-5">
           {/* Section 1: Thông tin chung */}
-          <View className="mb-6">
+          <View className="mb-4">
             <Text className="text-base font-bold mb-3">1. Thông tin chung</Text>
             <View className="bg-white rounded-lg p-4">
               <Text className="mb-1 text-sm text-gray-800">Tên bài</Text>
@@ -33,19 +33,19 @@ const CreateGradingSessionScreen = () => {
               />
 
               <Text className="mb-1 text-sm text-gray-800">Loại phiếu</Text>
-              <TouchableOpacity className="border border-gray-200 rounded-md px-4 py-3 mb-4 flex-row justify-between items-center">
+              <TouchableOpacity className="border border-gray-200 rounded-md px-4 py-3 flex-row justify-between items-center">
                 <Text className="text-sm text-gray-700">
                   Vui lòng nhấn để chọn loại phiếu
                 </Text>
                 <Text className="text-gray-500">{">"}</Text>
               </TouchableOpacity>
 
-              <View className="flex-row justify-between items-center">
+              {/* <View className="flex-row justify-between items-center">
                 <Text className="text-sm text-gray-800">
                   Tùy chỉnh quét số báo danh
                 </Text>
                 <Switch value={isSBDEnabled} onValueChange={setIsSBDEnabled} />
-              </View>
+              </View> */}
             </View>
           </View>
 

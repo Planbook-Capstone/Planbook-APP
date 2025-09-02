@@ -39,6 +39,62 @@ export default function GradingLayout() {
           headerTintColor: "#000", // màu chữ + icon
         }}
       />
+
+       <Stack.Screen
+        name="exportResults"
+        options={{
+          title: "Đáp án",
+          headerBackTitle: "Quay lại",
+          headerStyle: {
+            backgroundColor: "#fff", // nền trắng
+          },
+          headerTintColor: "#000", // màu chữ + icon
+        }}
+      />
+       <Stack.Screen
+        name="generalInfo"
+        options={{
+          title: "generalInfo",
+          headerBackTitle: "Quay lại",
+          headerStyle: {
+            backgroundColor: "#fff", // nền trắng
+          },
+          headerTintColor: "#000", // màu chữ + icon
+        }}
+      />
+         <Stack.Screen
+        name="gradedPapers"
+        options={{
+          title: "gradedPapers",
+          headerBackTitle: "Quay lại",
+          headerStyle: {
+            backgroundColor: "#fff", // nền trắng
+          },
+          headerTintColor: "#000", // màu chữ + icon
+        }}
+      />
+         <Stack.Screen
+        name="gradingMenu"
+        options={{
+          title: "gradingMenu",
+          headerBackTitle: "Quay lại",
+          headerStyle: {
+            backgroundColor: "#fff", // nền trắng
+          },
+          headerTintColor: "#000", // màu chữ + icon
+        }}
+      />
+         <Stack.Screen
+        name="statistics"
+        options={{
+          title: "statistics",
+          headerBackTitle: "Quay lại",
+          headerStyle: {
+            backgroundColor: "#fff", // nền trắng
+          },
+          headerTintColor: "#000", // màu chữ + icon
+        }}
+      />
     </Stack>
   );
 }
