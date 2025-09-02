@@ -1,40 +1,45 @@
-import React from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  SafeAreaView,
-} from "react-native";
+import { useGetGradingSessionById } from "@/services/gradingService";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import React from "react";
+import {
+  ActivityIndicator,
+  SafeAreaView,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View
+} from "react-native";
 
 interface ExamCode {
   id: string;
   code: string;
-  studentCount: number;
-  isCompleted: boolean;
+  studentCount?: number;
+  isCompleted?: boolean;
 }
-
-// Danh sách mã đề mẫu
-const examCodes: ExamCode[] = [
-  { id: "1", code: "3128", studentCount: 42, isCompleted: true },
-  { id: "2", code: "3129", studentCount: 38, isCompleted: true },
-  { id: "3", code: "3130", studentCount: 41, isCompleted: false },
-  { id: "4", code: "3131", studentCount: 39, isCompleted: true },
-  { id: "5", code: "3132", studentCount: 45, isCompleted: false },
-];
 
 export default function ExportResultsScreen() {
   const router = useRouter();
   const { id: idGradingSesstion } = useLocalSearchParams();
   console.log("🔎 ID truyền vào:", idGradingSesstion);
 
+  // Gọi API để lấy grading session với answer sheet keys
+  const { data: gradingSessionData, isLoading, error } = useGetGradingSessionById(
+    idGradingSesstion as string,
+    { enabled: !!idGradingSesstion }
+  );
+
+  // Extract answer sheet keys từ response
+  const answerSheetKeys = gradingSessionData?.data?.answer_sheet_keys || [];
+
   const handleExamCodePress = (examCode: ExamCode) => {
-    // Chuyển đến trang createAnswerKey với mã đề được chọn
+    // Chuyển đến trang createAnswerKey với mã đề được chọn để edit
     router.push({
       pathname: "/(grading)/createAnswerKey",
-      params: { examCode: examCode.code },
+      params: {
+        examCode: examCode.code,
+        id: idGradingSesstion
+      },
     });
   };
 
@@ -102,7 +107,24 @@ export default function ExportResultsScreen() {
 
         {/* Exam Codes List */}
         <View className="items-center">
-          {examCodes.map(renderExamCodeItem)}
+          {isLoading ? (
+            <ActivityIndicator size="large" color="#3B82F6" />
+          ) : error ? (
+            <Text className="text-red-500 text-center">
+              Có lỗi xảy ra khi tải danh sách mã đề
+            </Text>
+          ) : answerSheetKeys && answerSheetKeys.length > 0 ? (
+            answerSheetKeys.map((item: any) => renderExamCodeItem({
+              id: item.id?.toString() || item.code,
+              code: item.code,
+              studentCount: item.total_submissions || 0,
+              isCompleted: item.total_submissions > 0
+            }))
+          ) : (
+            <Text className="text-gray-500 text-center">
+              Chưa có mã đề nào được tạo
+            </Text>
+          )}
         </View>
 
         {/* Instructions */}
