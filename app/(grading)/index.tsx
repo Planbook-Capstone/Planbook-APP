@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
 import {
   FlatList,
@@ -47,6 +47,8 @@ const MOCK_HISTORY = [
 
 const HistoryCard = ({ item }: any) => {
   const router = useRouter();
+  const { id } = useLocalSearchParams();
+  console.log("🔎 ID truyền vào:", id);
 
   return (
     <TouchableOpacity

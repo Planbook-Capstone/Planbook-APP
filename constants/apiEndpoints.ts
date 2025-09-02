@@ -12,6 +12,8 @@ export const API_ENDPOINTS = {
     REFRESH_TOKEN: buildEndpoint(ServicePaths.IDENTITY_SERVICE, "/refresh"),
   },
 
+  BOOK_TYPES: buildEndpoint(ServicePaths.IDENTITY_SERVICE, "/book-types"),
+
   WALLET: buildEndpoint(ServicePaths.IDENTITY_SERVICE, "/wallets"),
   WALLET_TRANSACTIONS: buildEndpoint(
     ServicePaths.IDENTITY_SERVICE,
