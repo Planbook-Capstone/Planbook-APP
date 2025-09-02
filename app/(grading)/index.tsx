@@ -1,7 +1,7 @@
 import { useGetGradingSessions } from "@/services/gradingService";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -13,38 +13,77 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-
-const HistoryCard = ({ item }: any) => {
-  const router = useRouter();
-  return (
-    <TouchableOpacity
-      className="bg-white rounded-2xl p-6 mb-5 border border-gray-200 overflow-hidden"
-      onPress={() => router.push("/gradingMenu")}
-    >
-      <ImageBackground
-        source={require("@/assets/images/card-bg-1.png")}
-        className="absolute top-0 left-0 right-0 bottom-0 opacity-15"
-        resizeMode="cover"
-      />
-      <View className="flex-row justify-between items-center mb-3">
-        <Text className="text-lg font-bold text-gray-900">{item.title}</Text>
-        <View className="flex-row items-center space-x-1">
-          <Ionicons name="time-outline" size={16} color="#6b7280" />
-          <Text className="text-sm text-gray-500">{item.date}</Text>
-        </View>
-      </View>
-      <Text className="text-base text-gray-700">Số câu: {item.questions}</Text>
-    </TouchableOpacity>
-  );
-};
+import ExamIcon from "@/assets/images/icons/exam.svg";
+import { GeadingSectionCard } from "@/components/organisms/grading-section-card";
 
 export default function GradingHistoryScreen() {
   const router = useRouter();
-  const { data: gradingSessions, isLoading, error } = useGetGradingSessions();
   const { id: idBooktype } = useLocalSearchParams();
-  console.log("🔎 ID truyền vào:", idBooktype);
-  // Hiển thị loading khi đang tải dữ liệu
-  if (isLoading) {
+
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(15);
+  const [allGradingSessions, setAllGradingSessions] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // API parameters
+  const apiParams = useMemo(() => {
+    const baseParams: any = {
+      page: currentPage,
+      size: pageSize,
+      sortBy: "createdAt",
+      sortDir: "desc",
+    };
+    if (searchQuery) baseParams.search = searchQuery;
+    if (idBooktype) baseParams.bookTypeId = idBooktype;
+
+    return baseParams;
+  }, [currentPage, pageSize, searchQuery, idBooktype]);
+
+  const {
+    data: response,
+    isLoading,
+    error,
+    isFetching,
+  } = useGetGradingSessions(
+    [currentPage, pageSize, idBooktype],
+    { retry: 1 },
+    apiParams
+  );
+
+  // Effect to handle pagination data
+  useEffect(() => {
+    if (response?.data?.content) {
+      if (currentPage === 1) {
+        setAllGradingSessions(response.data.content);
+      } else {
+        setAllGradingSessions((prev) => [...prev, ...response.data.content]);
+      }
+    }
+  }, [response, currentPage]);
+
+  console.log("🔎tran", JSON.stringify(response?.data?.content, null, 2));
+
+  // Reset and fetch functions
+  const resetAndFetch = () => {
+    setCurrentPage(1);
+    setAllGradingSessions([]);
+  };
+
+  const handleSearchChange = (newQuery: string) => {
+    setSearchQuery(newQuery);
+    // resetAndFetch();
+  };
+
+  const handleLoadMore = () => {
+    const totalPages = response?.data?.totalPages ?? 1;
+    if (!isFetching && currentPage < totalPages) {
+      setCurrentPage((prev) => prev + 1);
+    }
+  };
+
+  // Hiển thị loading khi đang tải dữ liệu lần đầu
+  if (isLoading && currentPage === 1) {
     return (
       <SafeAreaView className="flex-1 bg-white justify-center items-center">
         <ActivityIndicator size="large" color="#3b82f6" />
@@ -78,29 +117,36 @@ export default function GradingHistoryScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <View className="px-4 pt-4 pb-2">
-        <Text className="text-3xl font-bold text-gray-900 mb-5">
+      <View className="px-4 gap-y-5">
+        <Text className="text-3xl font-calsans text-gray-900 pt-5 ">
           Lịch sử chấm điểm
         </Text>
         <View className="flex-row items-center space-x-3">
-          <View className="flex-1 flex-row items-center bg-gray-100 rounded-full px-3 h-12">
-            <Ionicons
-              name="search"
-              size={20}
-              color="#9ca3af"
-              className="mr-2"
-            />
+          <View className="flex-1 flex-row items-center border border-neutral-200 rounded-full px-3 h-12">
+            <Ionicons name="search" size={20} color="#9ca3af" />
             <TextInput
               placeholder="Tìm kiếm"
               placeholderTextColor="#9ca3af"
-              className="flex-1 text-base text-gray-800"
+              className="flex-1 text-base font-questrial ml-2"
+              style={{
+                height: 48, // h-12 = 48px
+                paddingVertical: 0,
+                textAlignVertical: "center", // Android
+                includeFontPadding: false, // Android: bỏ padding font mặc định
+                textAlign: "left", // căn text trái
+              }}
+              value={searchQuery}
+              onChangeText={handleSearchChange}
             />
           </View>
+
           <TouchableOpacity className="h-12 w-12 items-center justify-center bg-gray-100 mx-3 rounded-full">
             <Ionicons name="filter" size={20} color="#4b5563" />
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => router.push(`/(grading)/create-session?id=${idBooktype}`)}
+            onPress={() =>
+              router.push(`/(grading)/create-session?id=${idBooktype}`)
+            }
             className="h-12 w-12 rounded-full overflow-hidden"
           >
             <Image
@@ -113,22 +159,32 @@ export default function GradingHistoryScreen() {
       </View>
 
       <FlatList
-        data={gradingSessions || []}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <HistoryCard item={item} />}
+        data={allGradingSessions}
+        keyExtractor={(item, index) => `${item.id}-${index}`}
+        renderItem={({ item }) => <GeadingSectionCard item={item} />}
         contentContainerStyle={{ padding: 16, paddingTop: 8 }}
         showsVerticalScrollIndicator={false}
-        ListEmptyComponent={() => (
-          <View className="flex-1 justify-center items-center py-20">
-            <Ionicons name="document-text-outline" size={64} color="#9ca3af" />
-            <Text className="mt-4 text-xl font-bold text-gray-900">
-              Chưa có lịch sử chấm điểm
-            </Text>
-            <Text className="mt-2 text-gray-600 text-center">
-              Bắt đầu tạo phiên chấm điểm đầu tiên của bạn
-            </Text>
-          </View>
-        )}
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.5}
+        ListEmptyComponent={
+          !isFetching ? (
+            <View className="flex-1 justify-center items-center py-20">
+              <ExamIcon width={50} height={50} />
+              <Text className="mt-4 text-xl font-calsans text-gray-900">
+                Chưa có lịch sử chấm điểm
+              </Text>
+              <Text className="mt-2 font-questrial text-center">
+                Bắt đầu tạo phiên chấm điểm đầu tiên của bạn
+              </Text>
+            </View>
+          ) : null
+        }
+        ListFooterComponent={
+          isFetching && currentPage > 1 ? (
+            <ActivityIndicator size="small" className="my-4" />
+          ) : null
+        }
+        className="pt-5"
       />
     </SafeAreaView>
   );
