@@ -1,5 +1,6 @@
 import HistoryItem from "@/components/organisms/history-item";
 import ToolCard from "@/components/organisms/tool-card";
+import { useBookTypesService } from "@/services/bookTypeServices";
 import { useToolLogsWithParamsService } from "@/services/toolLogServices";
 import { useWalletService } from "@/services/walletServices";
 import { useAuthStore } from "@/store/authStore";
@@ -19,7 +20,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const toolCategory = {
     id: 1,
-    title: "Chấm điểm bài thi trắc nghiệm",
+    name: "Chấm điểm bài thi trắc nghiệm hihi",
     description: "Tự động chấm điểm các bài thi trắc nghiệm từ ảnh chụp",
     icon: null,
     color: "bg-green-100",
@@ -32,10 +33,10 @@ export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [hasMoreData, setHasMoreData] = useState(true);
   const { user } = useAuthStore();
-  // const { data: bookTypes, isLoading } = useBookTypesService();
-  // const filtered = bookTypes.data.content.filter(
-  //   (item: any) => item.code === "EXAM_GRADING"
-  // );
+
+  const { data: bookTypes, isLoading } = useBookTypesService();
+  const filtered =
+    bookTypes?.data?.content?.filter((item: any) => item.app) || [];
 
   // console.log("✅ BookTypes lọc theo EXAM_GRADING:", filtered);
 
@@ -117,7 +118,12 @@ export default function HomeScreen() {
       </View>
 
       <View>
-        <ToolCard tool={toolCategory} onPress={() => {}} />
+        <ToolCard
+          tool={filtered[0] || toolCategory}
+          onPress={() => {
+            router.push(`/(grading)?id=${filtered[0]?.id}`);
+          }}
+        />
       </View>
 
       <View className="px-4 mb-3 flex-row items-center justify-between">
