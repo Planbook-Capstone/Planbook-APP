@@ -1,103 +1,45 @@
-import React from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  SafeAreaView,
-} from "react-native";
-import { Ionicons, MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
+import { View, Text, ScrollView, SafeAreaView } from "react-native";
 import { useRouter } from "expo-router";
-
-interface MenuItemProps {
-  icon: React.ReactNode;
-  title: string;
-  onPress: () => void;
-}
-
-const MenuItem: React.FC<MenuItemProps> = ({ icon, title, onPress }) => (
-  <TouchableOpacity
-    onPress={onPress}
-    activeOpacity={0.8}
-    className="flex-row items-center gap-4 px-6 py-5 bg-white rounded-2xl border border-gray-100"
-    style={{
-      width: 368,
-      height: 70,
-      shadowColor: "#000",
-      shadowOffset: {
-        width: 0,
-        height: 4,
-      },
-      shadowOpacity: 0.08,
-      shadowRadius: 8,
-      elevation: 4,
-    }}
-  >
-    <View
-      className="w-12 h-12 items-center justify-center rounded-xl bg-blue-50"
-      style={{
-        shadowColor: "#3B82F6",
-        shadowOffset: {
-          width: 0,
-          height: 2,
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 2,
-      }}
-    >
-      {icon}
-    </View>
-    <View className="flex-1">
-      <Text
-        className="text-gray-900 font-semibold"
-        style={{
-          fontFamily: "CalSans",
-          fontSize: 18,
-          lineHeight: 22,
-        }}
-      >
-        {title}
-      </Text>
-    </View>
-    <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
-  </TouchableOpacity>
-);
+import MenuItem from "@/components/organisms/menu-item";
+import KeyIcon from "@/assets/images/icons/key.svg";
+import ExamIcon from "@/assets/images/icons/exam.svg";
+import ScanIcon from "@/assets/images/icons/scan.svg";
+import LayerIcon from "@/assets/images/icons/layer.svg";
+import InfoIcon from "@/assets/images/icons/info.svg";
+import SendIcon from "@/assets/images/icons/send.svg";
 
 export default function GradingMenuScreen() {
   const router = useRouter();
 
   const menuItems = [
     {
-      icon: <MaterialIcons name="qr-code-scanner" size={24} color="#3B82F6" />,
-      title: "Chấm điểm",
-      onPress: () => router.push("/scanExam"),
-    },
-    {
-      icon: <Ionicons name="key-outline" size={24} color="#8B5CF6" />,
+      icon: <KeyIcon />,
       title: "Đáp án",
       onPress: () => router.push("/exportResults"),
     },
     {
-      icon: <Ionicons name="document-text-outline" size={24} color="#10B981" />,
+      icon: <ScanIcon />,
+      title: "Chấm điểm",
+      onPress: () => router.push("/scanExam"),
+    },
+    {
+      icon: <SendIcon />,
+      title: "Xuất kết quả",
+      onPress: () => router.push("/exportResults"),
+    },
+    {
+      icon: <ExamIcon />,
       title: "Bài đã chấm",
       onPress: () => router.push("/gradedPapers"),
     },
     {
-      icon: <Ionicons name="bar-chart-outline" size={24} color="#F59E0B" />,
+      icon: <LayerIcon />,
       title: "Thống kê",
       onPress: () => router.push("/statistics"),
     },
 
     {
-      icon: <Ionicons name="download-outline" size={24} color="#EF4444" />,
-      title: "Xuất kết quả",
-      onPress: () => router.push("/exportResults"),
-    },
-    {
-      icon: (
-        <Ionicons name="information-circle-outline" size={24} color="#6B7280" />
-      ),
+      icon: <InfoIcon />,
       title: "Thông tin chung",
       onPress: () => router.push("/generalInfo"),
     },
@@ -114,7 +56,7 @@ export default function GradingMenuScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Title Section */}
-        <View className="items-center gap-3 px-6 py-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100">
+        {/* <View className="items-center gap-3 px-6 py-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100">
           <Text
             className="text-gray-900 text-center font-bold"
             style={{
@@ -125,7 +67,7 @@ export default function GradingMenuScreen() {
           >
             Đợt chấm
           </Text>
-        </View>
+        </View> */}
 
         {/* Menu Items */}
         <View className="gap-4 items-center">
