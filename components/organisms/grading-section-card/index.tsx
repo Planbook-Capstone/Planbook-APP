@@ -7,7 +7,7 @@ export const GeadingSectionCard = ({ item }: any) => {
   return (
     <TouchableOpacity
       className="bg-white rounded-2xl p-6 mb-5 border border-gray-200 overflow-hidden"
-      onPress={() => router.push("/gradingMenu")}
+      onPress={() => router.push(`/gradingMenu?id=${item?.id}`)}
     >
       <ImageBackground
         source={require("@/assets/images/card-bg-1.png")}

@@ -30,6 +30,8 @@ import {
 export default function CreateAnswerKeyScreen() {
   const router = useRouter();
   const { examCode } = useLocalSearchParams<{ examCode?: string }>();
+  const { id: idGradingSesstion } = useLocalSearchParams();
+  console.log("🔎 ID truyền vào:", idGradingSesstion);
 
   // Sử dụng fake data hoặc empty data
   const [examData, setExamData] = useState<AnswerKeyData>(emptyAnswerKeyData);

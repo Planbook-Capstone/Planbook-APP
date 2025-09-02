@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, SafeAreaView } from "react-native";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import MenuItem from "@/components/organisms/menu-item";
 import KeyIcon from "@/assets/images/icons/key.svg";
 import ExamIcon from "@/assets/images/icons/exam.svg";
@@ -10,12 +10,13 @@ import SendIcon from "@/assets/images/icons/send.svg";
 
 export default function GradingMenuScreen() {
   const router = useRouter();
+  const { id: idGradingSesstion } = useLocalSearchParams();
 
   const menuItems = [
     {
       icon: <KeyIcon />,
       title: "Đáp án",
-      onPress: () => router.push("/exportResults"),
+      onPress: () => router.push(`/exportResults?id=${idGradingSesstion}`),
     },
     {
       icon: <ScanIcon />,
