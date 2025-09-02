@@ -6,15 +6,6 @@ function Banner() {
   const { user } = useAuthStore();
   return (
     <View className="rounded-2xl  py-20 relative overflow-hidden">
-      {/* <Video
-                source={{
-                  uri: "https://hxjigovnfjyaepkgvamd.supabase.co/storage/v1/object/public/planbook/Scene%2003%20-%204K%20(3840x2160)%20(1).mp4",
-                }}
-                style={{ width: "100%", height: 200 }}
-                resizeMode="cover"
-                repeat
-                muted
-              /> */}
       <Image
         source={require("@/assets/images/background.png")}
         style={{
