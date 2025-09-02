@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 
 type MultipleChoiceAnswer = "A" | "B" | "C" | "D" | null;
 
@@ -11,6 +11,7 @@ interface Question {
 interface MultipleChoiceSectionProps {
   questions: Question[];
   onAnswerChange: (questionId: number, answer: MultipleChoiceAnswer) => void;
+  error?: string;
 }
 
 const OptionButton = ({
@@ -48,6 +49,7 @@ const OptionButton = ({
 export default function MultipleChoiceSection({
   questions,
   onAnswerChange,
+  error,
 }: MultipleChoiceSectionProps) {
   return (
     <View className="mb-8">
@@ -78,6 +80,15 @@ export default function MultipleChoiceSection({
           </View>
         </View>
       ))}
+
+      {/* Error message */}
+      <View className="h-[20px] mt-1">
+        {error && (
+          <Text className="text-red-500 text-sm">
+            {error}
+          </Text>
+        )}
+      </View>
     </View>
   );
 }
