@@ -1,8 +1,12 @@
 import { API_ENDPOINTS } from "@/constants/apiEndpoints";
-import { createMutationHook, createQueryHook } from "@/hooks/react-query";
+import {
+  createDynamicQueryHook,
+  createMutationHook,
+  createQueryHook,
+} from "@/hooks/react-query";
 
 // Hook để lấy danh sách các phiên chấm điểm (GET)
-export const useGetGradingSessions = createQueryHook(
+export const useGetGradingSessions = createDynamicQueryHook(
   "gradingSessions",
   API_ENDPOINTS.GRADING_SESSIONS
 );
@@ -18,4 +22,3 @@ export const useGetOMRTemplates = createQueryHook(
   "omrTemplates",
   API_ENDPOINTS.OMR_TEMPLATES
 );
-
