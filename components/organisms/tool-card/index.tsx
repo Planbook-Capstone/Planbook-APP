@@ -52,7 +52,7 @@ function ToolCard({ tool, onPress }: ToolCardProps) {
             {/* Bottom section với text */}
             <View className="flex-1 justify-end pl-2">
               <Text className="text-2xl font-calsans text-black">
-                {tool.title}
+                {tool.name}
               </Text>
               <Text
                 className="font-questrial text-base text-neutral-600 mt-1"
@@ -66,7 +66,7 @@ function ToolCard({ tool, onPress }: ToolCardProps) {
       </View>
 
       <View className="flex-1">
-        <Text className="text-xl font-calsans text-gray-800">{tool.title}</Text>
+        <Text className="text-xl font-calsans text-gray-800">{tool.name}</Text>
         <Text className="font-questrial text-sm mt-1" numberOfLines={2}>
           {tool.description}
         </Text>

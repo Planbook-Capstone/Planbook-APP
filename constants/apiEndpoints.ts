@@ -24,6 +24,8 @@ export const API_ENDPOINTS = {
     ServicePaths.ACADEMIC_RESOURCE,
     "/academic-resources/internal"
   ),
+  GRADING_SESSIONS: buildEndpoint(ServicePaths.GRADING_SERVICE, "/grading-sessions"),
+  OMR_TEMPLATES: buildEndpoint(ServicePaths.GRADING_SERVICE, "/omr-templates"),
   // Thêm các endpoint khác ở đây
   // PRODUCTS: {
   //   GET_ALL: '/product-service/api/products',

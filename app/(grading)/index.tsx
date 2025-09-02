@@ -1,7 +1,9 @@
+import { useGetGradingSessions } from "@/services/gradingService";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
 import {
+  ActivityIndicator,
   FlatList,
   Image,
   ImageBackground,
@@ -12,44 +14,8 @@ import {
   View,
 } from "react-native";
 
-const MOCK_HISTORY = [
-  {
-    id: "1",
-    title: "\u0110ợt chấm (1)",
-    date: "30-08-2025 12:05:50",
-    questions: "12 | 20 | 5",
-  },
-  {
-    id: "2",
-    title: "\u0110ợt chấm (2)",
-    date: "29-08-2025 11:30:00",
-    questions: "15 | 15 | 0",
-  },
-  {
-    id: "3",
-    title: "\u0110ợt chấm (3)",
-    date: "28-08-2025 09:05:10",
-    questions: "20 | 0 | 0",
-  },
-  {
-    id: "4",
-    title: "\u0110ợt chấm (4)",
-    date: "27-08-2025 16:20:30",
-    questions: "10 | 8 | 2",
-  },
-  {
-    id: "5",
-    title: "\u0110ợt chấm (5)",
-    date: "26-08-2025 14:00:00",
-    questions: "18 | 2 | 0",
-  },
-];
-
 const HistoryCard = ({ item }: any) => {
   const router = useRouter();
-  const { id } = useLocalSearchParams();
-  console.log("🔎 ID truyền vào:", id);
-
   return (
     <TouchableOpacity
       className="bg-white rounded-2xl p-6 mb-5 border border-gray-200 overflow-hidden"
@@ -74,6 +40,41 @@ const HistoryCard = ({ item }: any) => {
 
 export default function GradingHistoryScreen() {
   const router = useRouter();
+  const { data: gradingSessions, isLoading, error } = useGetGradingSessions();
+  const { id: idBooktype } = useLocalSearchParams();
+  console.log("🔎 ID truyền vào:", idBooktype);
+  // Hiển thị loading khi đang tải dữ liệu
+  if (isLoading) {
+    return (
+      <SafeAreaView className="flex-1 bg-white justify-center items-center">
+        <ActivityIndicator size="large" color="#3b82f6" />
+        <Text className="mt-4 text-gray-600">
+          Đang tải lịch sử chấm điểm...
+        </Text>
+      </SafeAreaView>
+    );
+  }
+
+  // Hiển thị lỗi nếu có
+  if (error) {
+    return (
+      <SafeAreaView className="flex-1 bg-white justify-center items-center px-4">
+        <Ionicons name="alert-circle-outline" size={64} color="#ef4444" />
+        <Text className="mt-4 text-xl font-bold text-gray-900 text-center">
+          Có lỗi xảy ra
+        </Text>
+        <Text className="mt-2 text-gray-600 text-center">
+          Không thể tải lịch sử chấm điểm. Vui lòng thử lại sau.
+        </Text>
+        <TouchableOpacity
+          onPress={() => window.location.reload()}
+          className="mt-6 bg-blue-500 px-6 py-3 rounded-lg"
+        >
+          <Text className="text-white font-semibold">Thử lại</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -99,7 +100,7 @@ export default function GradingHistoryScreen() {
             <Ionicons name="filter" size={20} color="#4b5563" />
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => router.push("/(grading)/create-session")}
+            onPress={() => router.push(`/(grading)/create-session?id=${idBooktype}`)}
             className="h-12 w-12 rounded-full overflow-hidden"
           >
             <Image
@@ -112,11 +113,22 @@ export default function GradingHistoryScreen() {
       </View>
 
       <FlatList
-        data={MOCK_HISTORY}
+        data={gradingSessions || []}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <HistoryCard item={item} />}
         contentContainerStyle={{ padding: 16, paddingTop: 8 }}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={() => (
+          <View className="flex-1 justify-center items-center py-20">
+            <Ionicons name="document-text-outline" size={64} color="#9ca3af" />
+            <Text className="mt-4 text-xl font-bold text-gray-900">
+              Chưa có lịch sử chấm điểm
+            </Text>
+            <Text className="mt-2 text-gray-600 text-center">
+              Bắt đầu tạo phiên chấm điểm đầu tiên của bạn
+            </Text>
+          </View>
+        )}
       />
     </SafeAreaView>
   );
