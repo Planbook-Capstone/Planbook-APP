@@ -54,7 +54,7 @@ export default function GradingLayout() {
        <Stack.Screen
         name="generalInfo"
         options={{
-          title: "generalInfo",
+          title: "Thông tin chung",
           headerBackTitle: "Quay lại",
           headerStyle: {
             backgroundColor: "#fff", // nền trắng
@@ -65,7 +65,7 @@ export default function GradingLayout() {
          <Stack.Screen
         name="gradedPapers"
         options={{
-          title: "gradedPapers",
+          title: "Bài đã chấm",
           headerBackTitle: "Quay lại",
           headerStyle: {
             backgroundColor: "#fff", // nền trắng
@@ -76,7 +76,7 @@ export default function GradingLayout() {
          <Stack.Screen
         name="gradingMenu"
         options={{
-          title: "gradingMenu",
+          title: "Quản lý chấm điểm",
           headerBackTitle: "Quay lại",
           headerStyle: {
             backgroundColor: "#fff", // nền trắng
@@ -87,7 +87,7 @@ export default function GradingLayout() {
          <Stack.Screen
         name="statistics"
         options={{
-          title: "statistics",
+          title: "Thống kê",
           headerBackTitle: "Quay lại",
           headerStyle: {
             backgroundColor: "#fff", // nền trắng

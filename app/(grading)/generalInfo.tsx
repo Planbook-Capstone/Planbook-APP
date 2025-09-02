@@ -104,7 +104,7 @@ export default function GeneralInfoScreen() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center justify-between px-6 py-4 border-b border-gray-100">
+      {/* <View className="flex-row items-center justify-between px-6 py-4 border-b border-gray-100">
         <View className="flex-row items-center">
           <TouchableOpacity
             onPress={() => router.back()}
@@ -136,7 +136,7 @@ export default function GeneralInfoScreen() {
             color={isEditing ? "#EF4444" : "#3B82F6"}
           />
         </TouchableOpacity>
-      </View>
+      </View> */}
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Exam Overview */}
@@ -198,12 +198,25 @@ export default function GeneralInfoScreen() {
 
         {/* Exam Details */}
         <View className="px-6 py-6">
-          <Text
+        <View className="flex-row justify-between "> 
+
+            <Text
             className="text-lg font-semibold text-gray-900 mb-4"
             style={{ fontFamily: "CalSans" }}
           >
             Thông tin chi tiết
           </Text>
+           <TouchableOpacity
+          onPress={() => setIsEditing(!isEditing)}
+          className="px-3 py-2"
+        >
+          <Ionicons
+            name={isEditing ? "close" : "pencil"}
+            size={20}
+            color={isEditing ? "#EF4444" : "#3B82F6"}
+          />
+        </TouchableOpacity>
+        </View>
 
           <InfoRow
             label="Tên bài thi"

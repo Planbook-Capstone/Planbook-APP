@@ -51,7 +51,7 @@ export default function StatisticsScreen() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center px-6 py-4 border-b border-gray-100">
+      {/* <View className="flex-row items-center px-6 py-4 border-b border-gray-100">
         <TouchableOpacity
           onPress={() => router.back()}
           className="flex-row items-center"
@@ -70,7 +70,7 @@ export default function StatisticsScreen() {
         >
           Thống kê
         </Text>
-      </View>
+      </View> */}
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Stats Cards */}
