@@ -1,6 +1,7 @@
 import Banner from "@/components/organisms/banner";
 import HistoryItem from "@/components/organisms/history-item";
 import ToolCard from "@/components/organisms/tool-card";
+import { useBookTypesService } from "@/services/bookTypeServices";
 import { useToolLogsWithParamsService } from "@/services/toolLogServices";
 import { useWalletService } from "@/services/walletServices";
 import { useAuthStore } from "@/store/authStore";
@@ -23,7 +24,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const toolCategory = {
     id: 1,
-    title: "Chấm điểm bài thi trắc nghiệm",
+    name: "Chấm điểm bài thi trắc nghiệm hihi",
     description: "Tự động chấm điểm các bài thi trắc nghiệm từ ảnh chụp",
     icon: null,
     color: "bg-green-100",
@@ -36,6 +37,12 @@ export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [hasMoreData, setHasMoreData] = useState(true);
   const { user } = useAuthStore();
+  const { data: bookTypes, isLoading } = useBookTypesService();
+  const filtered = bookTypes.data.content.filter(
+    (item: any) => item.code === "EXAM_GRADING"
+  );
+
+  console.log("✅ BookTypes lọc theo EXAM_GRADING:", filtered);
 
   // Call API lấy lịch sử tool log
   const { data: toolLogs, isLoading: isLoadingToolLogs } =
@@ -55,7 +62,10 @@ export default function HomeScreen() {
   useEffect(() => {
     if (toolLogs?.data?.content) {
       // Kiểm tra nếu không có dữ liệu trả về hoặc ít hơn pageSize thì đã hết data
-      if (toolLogs.data.content.length === 0 || toolLogs.data.content.length < pageSize) {
+      if (
+        toolLogs.data.content.length === 0 ||
+        toolLogs.data.content.length < pageSize
+      ) {
         setHasMoreData(false);
       } else {
         setHasMoreData(true);
@@ -68,7 +78,14 @@ export default function HomeScreen() {
       }
 
       // Debug log
-      console.log(`Received ${toolLogs.data.content.length} items, page ${currentPage}, hasMore: ${toolLogs.data.content.length > 0 && toolLogs.data.content.length >= pageSize}`);
+      console.log(
+        `Received ${
+          toolLogs.data.content.length
+        } items, page ${currentPage}, hasMore: ${
+          toolLogs.data.content.length > 0 &&
+          toolLogs.data.content.length >= pageSize
+        }`
+      );
     }
   }, [toolLogs, currentPage, pageSize]);
 
@@ -76,7 +93,7 @@ export default function HomeScreen() {
   const loadMoreHistory = useCallback(() => {
     // Chỉ load thêm nếu không đang loading, còn dữ liệu phía sau, và có dữ liệu từ API
     if (!isLoadingToolLogs && hasMoreData && toolLogs?.data?.content) {
-      console.log('Loading more data, current page:', currentPage);
+      console.log("Loading more data, current page:", currentPage);
       setCurrentPage((prev) => prev + 1);
     }
   }, [isLoadingToolLogs, hasMoreData, toolLogs?.data?.content, currentPage]);
@@ -98,8 +115,10 @@ export default function HomeScreen() {
 
       <View className="px-2 mb-6">
         <ToolCard
-          tool={toolCategory}
-          onPress={() => router.push("/(grading)")}
+          tool={filtered[0] || toolCategory}
+          onPress={() =>
+            router.push(`/(grading)?id=${filtered[0]?.id}`)
+          }
         />
       </View>
 
@@ -121,7 +140,7 @@ export default function HomeScreen() {
         </View>
       );
     }
-    
+
     if (!hasMoreData && historyData.length > 0) {
       return (
         <View className="py-4 items-center">
@@ -129,10 +148,10 @@ export default function HomeScreen() {
         </View>
       );
     }
-    
+
     return null;
   };
-  
+
   const { data: wallet } = useWalletService();
   return (
     <SafeAreaView className="flex-1 bg-white pb-[100px]">
