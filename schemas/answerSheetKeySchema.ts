@@ -56,7 +56,12 @@ export const answerKeyFormSchema = z.object({
   multipleChoiceQuestions: z.array(z.object({
     id: z.number(),
     answer: z.enum(["A", "B", "C", "D"]).nullable()
-  })),
+  })).refine((questions) => {
+    // Check if all questions have answers
+    return questions.every(q => q.answer !== null);
+  }, {
+    message: 'Vui lòng chọn đáp án cho tất cả câu trắc nghiệm'
+  }),
   trueFalseQuestions: z.array(z.object({
     id: z.number(),
     subQuestions: z.object({
@@ -65,7 +70,17 @@ export const answerKeyFormSchema = z.object({
       c: z.enum(["Đ", "S"]).nullable(),
       d: z.enum(["Đ", "S"]).nullable(),
     })
-  })),
+  })).refine((questions) => {
+    // Check if all sub-questions have answers
+    return questions.every(q =>
+      q.subQuestions.a !== null &&
+      q.subQuestions.b !== null &&
+      q.subQuestions.c !== null &&
+      q.subQuestions.d !== null
+    );
+  }, {
+    message: 'Vui lòng chọn đáp án cho tất cả câu đúng/sai'
+  }),
   essayQuestions: z.array(z.object({
     id: z.number(),
     answer: z.string()

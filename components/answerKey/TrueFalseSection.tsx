@@ -21,11 +21,13 @@ interface TrueFalseSectionProps {
     subQuestion: keyof TrueFalseQuestion["subQuestions"],
     answer: TrueFalseAnswer
   ) => void;
+  error?: string;
 }
 
 export default function TrueFalseSection({
   questions,
   onAnswerChange,
+  error,
 }: TrueFalseSectionProps) {
   return (
     <View className="mb-8">
@@ -61,6 +63,15 @@ export default function TrueFalseSection({
           </View>
         </View>
       ))}
+
+      {/* Error message */}
+      <View className="h-[20px] mt-1">
+        {error && (
+          <Text className="text-red-500 text-sm">
+            {error}
+          </Text>
+        )}
+      </View>
     </View>
   );
 }

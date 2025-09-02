@@ -1,10 +1,12 @@
 import { answerKeyFormSchema, answerSheetKeySchema } from "@/schemas/answerSheetKeySchema";
-import { useCreateAnswerSheetKey } from "@/services/answerSheetKeyService";
+import { useCreateAnswerSheetKey, useUpdateAnswerSheetKey } from "@/services/answerSheetKeyService";
 import { useGetGradingSessionById } from "@/services/gradingService";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
   SafeAreaView,
   ScrollView,
   Text,
@@ -54,6 +56,9 @@ export default function CreateAnswerKeyScreen() {
   // Hook để tạo answer sheet key
   const createAnswerSheetKeyMutation = useCreateAnswerSheetKey();
 
+  // Hook để update answer sheet key
+  const updateAnswerSheetKeyMutation = useUpdateAnswerSheetKey();
+
   // Hook để lấy grading session config
   const { data: gradingSessionData, isLoading: isLoadingSession } = useGetGradingSessionById(
     idGradingSesstion as string,
@@ -62,6 +67,9 @@ export default function CreateAnswerKeyScreen() {
 
   // Validation errors state
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+
+  // Loading state for save operation
+  const [isSaving, setIsSaving] = useState(false);
 
   // Helper function to get error message for a field
   const getFieldError = (fieldPath: string) => {
@@ -492,6 +500,7 @@ export default function CreateAnswerKeyScreen() {
   const handleSave = async () => {
     // Clear previous errors
     setValidationErrors({});
+    setIsSaving(true);
 
     if (!idGradingSesstion) {
       showMessage({
@@ -503,9 +512,10 @@ export default function CreateAnswerKeyScreen() {
     }
 
     // Check if this is editing existing answer key
-    const isEditing = examCode && gradingSessionData?.data?.answer_sheet_keys?.some(
+    const existingAnswerKey = gradingSessionData?.data?.answer_sheet_keys?.find(
       (key: any) => key.code === examCode
     );
+    const isEditing = !!existingAnswerKey;
 
     try {
       // Validate form data first
@@ -545,7 +555,26 @@ export default function CreateAnswerKeyScreen() {
       const validatedData = result.data;
       console.log("✅ Data sau khi validate:", JSON.stringify(validatedData, null, 2));
 
-      const response = await createAnswerSheetKeyMutation.mutateAsync(validatedData);
+      let response;
+      if (isEditing) {
+        // Update existing answer key
+        const updateData = {
+          code: validatedData.code,
+          answerJson: validatedData.answer_json
+        };
+
+        console.log("🔄 Updating answer key ID:", existingAnswerKey.id);
+        console.log("📤 Update data:", JSON.stringify(updateData, null, 2));
+
+        // Use service for update with ID in URL
+        response = await updateAnswerSheetKeyMutation.mutateAsync({
+          id: existingAnswerKey.id.toString(),
+          data: updateData
+        });
+      } else {
+        // Create new answer key
+        response = await createAnswerSheetKeyMutation.mutateAsync(validatedData);
+      }
 
       showMessage({
         message: response?.data?.message || (isEditing ? "Cập nhật đáp án thành công!" : "Tạo đáp án thành công!"),
@@ -572,6 +601,8 @@ export default function CreateAnswerKeyScreen() {
         type: "danger",
         icon: "danger",
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -625,10 +656,16 @@ export default function CreateAnswerKeyScreen() {
         </View>
       </View> */}
 
-      <ScrollView
-        className="flex-1 px-8 py-8"
-        showsVerticalScrollIndicator={false}
+      <KeyboardAvoidingView
+        className="flex-1"
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={100}
       >
+        <ScrollView
+          className="flex-1 px-8 py-8"
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
         {/* Thông tin chung */}
         <ExamInfoSection
           examCode={examData.examCode}
@@ -640,12 +677,14 @@ export default function CreateAnswerKeyScreen() {
         <MultipleChoiceSection
           questions={examData.multipleChoiceQuestions}
           onAnswerChange={handleMultipleChoiceAnswer}
+          error={getFieldError('multipleChoiceQuestions')}
         />
 
         {/* Phần 2 - Đúng/sai */}
         <TrueFalseSection
           questions={examData.trueFalseQuestions}
           onAnswerChange={handleTrueFalseAnswer}
+          error={getFieldError('trueFalseQuestions')}
         />
 
         {/* Phần 3 - Tự luận */}
@@ -659,9 +698,9 @@ export default function CreateAnswerKeyScreen() {
         <TouchableOpacity
           className="bg-blue-500 rounded-lg py-4 mt-8 mb-8"
           onPress={handleSave}
-          disabled={createAnswerSheetKeyMutation.isPending}
+          disabled={isSaving || createAnswerSheetKeyMutation.isPending || updateAnswerSheetKeyMutation.isPending}
         >
-          {createAnswerSheetKeyMutation.isPending ? (
+          {(isSaving || createAnswerSheetKeyMutation.isPending || updateAnswerSheetKeyMutation.isPending) ? (
             <ActivityIndicator size="small" color="#FFFFFF" />
           ) : (
             <Text className="text-white text-xl font-semibold text-center">
@@ -669,7 +708,8 @@ export default function CreateAnswerKeyScreen() {
             </Text>
           )}
         </TouchableOpacity>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
