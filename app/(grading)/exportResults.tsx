@@ -68,32 +68,6 @@ export default function ExportResultsScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      {/* Header */}
-      <View className="px-8 py-8">
-        <View className="flex-row items-center mb-3">
-          <TouchableOpacity
-            onPress={() => router.back()}
-            className="flex-row items-center"
-          >
-            <Ionicons name="arrow-back" size={24} color="#292D32" />
-            <Text
-              className="text-xl font-normal text-black ml-2"
-              style={{ fontFamily: "Questrial" }}
-            >
-              Quay lại |
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        <View className="items-center">
-          <Text
-            className="text-2xl font-bold text-black"
-            style={{ fontFamily: "CalSans" }}
-          >
-            Đáp án
-          </Text>
-        </View>
-      </View>
 
       <ScrollView
         className="flex-1 px-8"
@@ -101,7 +75,7 @@ export default function ExportResultsScreen() {
         contentContainerStyle={{ gap: 30 }}
       >
         {/* Create New Exam Code Button */}
-        <View className="items-center">
+        <View className="items-center mt-10">
           <TouchableOpacity
             onPress={handleCreateNewExamCode}
             className="bg-blue-500 rounded-full px-6 py-4 flex-row items-center shadow-md"

@@ -104,7 +104,7 @@ export default function GradingMenuScreen() {
   ];
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView className="flex-1 bg-white">
       <ScrollView
         className="flex-1"
         contentContainerStyle={{
@@ -113,26 +113,6 @@ export default function GradingMenuScreen() {
         }}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
-        <View className="flex-row items-center gap-1.5">
-          <TouchableOpacity
-            onPress={() => router.back()}
-            className="flex-row items-center gap-1.5"
-          >
-            <Ionicons name="arrow-back" size={24} color="#292D32" />
-            <Text
-              className="text-black"
-              style={{
-                fontFamily: "Questrial",
-                fontSize: 20,
-                lineHeight: 20.6,
-              }}
-            >
-              Quay lại |
-            </Text>
-          </TouchableOpacity>
-        </View>
-
         {/* Title Section */}
         <View className="items-center gap-3 px-6 py-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100">
           <Text
