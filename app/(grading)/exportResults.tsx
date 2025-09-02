@@ -7,7 +7,7 @@ import {
   SafeAreaView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 
 interface ExamCode {
   id: string;
@@ -27,6 +27,8 @@ const examCodes: ExamCode[] = [
 
 export default function ExportResultsScreen() {
   const router = useRouter();
+  const { id: idGradingSesstion } = useLocalSearchParams();
+  console.log("🔎 ID truyền vào:", idGradingSesstion);
 
   const handleExamCodePress = (examCode: ExamCode) => {
     // Chuyển đến trang createAnswerKey với mã đề được chọn
@@ -38,7 +40,7 @@ export default function ExportResultsScreen() {
 
   const handleCreateNewExamCode = () => {
     // Chuyển đến trang createAnswerKey để tạo mã đề mới
-    router.push("/(grading)/createAnswerKey");
+    router.push(`/(grading)/createAnswerKey?id=${idGradingSesstion}`);
   };
 
   const renderExamCodeItem = (examCode: ExamCode) => (
@@ -68,7 +70,6 @@ export default function ExportResultsScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-
       <ScrollView
         className="flex-1 px-8"
         showsVerticalScrollIndicator={false}
