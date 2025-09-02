@@ -6,8 +6,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const TabBar = ({ state, descriptors, navigation }) => {
   const insets = useSafeAreaInsets();
-  const primaryColor = "#FF6001";
-  const greyColor = "#737373";
+  const activeColor = "black";
+  const inactiveColor = "#D4D4D4";
   return (
     <View style={[styles.tabbar, { paddingBottom: insets.bottom }]}>
       {state.routes.map((route, index) => {
@@ -42,6 +42,14 @@ const TabBar = ({ state, descriptors, navigation }) => {
           });
         };
 
+        // Lấy icon từ tabBarIcon option
+        const icon = options.tabBarIcon
+          ? options.tabBarIcon({
+              color: isFocused ? activeColor : inactiveColor,
+              focused: isFocused,
+            })
+          : null;
+
         return (
           <TabBarButton
             key={route.name}
@@ -50,8 +58,9 @@ const TabBar = ({ state, descriptors, navigation }) => {
             onLongPress={onLongPress}
             isFocused={isFocused}
             routeName={route.name}
-            color={isFocused ? primaryColor : greyColor}
+            color={isFocused ? activeColor : inactiveColor}
             label={label}
+            icon={icon}
           />
         );
       })}

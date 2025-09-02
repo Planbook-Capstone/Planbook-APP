@@ -1,7 +1,8 @@
 import { AntDesign, Feather } from "@expo/vector-icons";
+import HomeIcon from "@/assets/images/icons/home-active.svg";
+import UserIcon from "@/assets/images/icons/user.svg";
+
 export const icons = {
-  index: (props) => <Feather name="home" size={26} {...props} />,
-  profile: (props) => (
-    <AntDesign name="user" size={26} color="black" {...props} />
-  ),
+  index: (props) => <HomeIcon {...props} />,
+  profile: (props) => <UserIcon {...props} />,
 };

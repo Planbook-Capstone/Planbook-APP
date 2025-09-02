@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { View, Text, Animated, Dimensions, StyleSheet, LayoutChangeEvent } from "react-native";
+import Svg, { Defs, ClipPath, Path, G } from 'react-native-svg';
 
 const { width: screenWidth } = Dimensions.get("window");
 
@@ -78,82 +79,116 @@ function MarqueeHeader({
   });
 
   return (
-    <Animated.View
-      style={[
-        styles.container,
-        {
-          backgroundColor,
-          transform: [{ skewY: backgroundSkew }],
-        },
-      ]}
-      onLayout={onContainerLayout}
-    >
-      <View style={styles.marqueeContainer}>
-        {/* First copy of text */}
-        <Animated.View
-          style={[
-            styles.textContainer,
-            {
-              transform: [
-                {
-                  translateX: animatedValue.interpolate({
-                    inputRange: [-1, 0],
-                    outputRange: [0, textWidth],
-                  }),
-                },
-              ],
-            },
-          ]}
-        >
-          <Text
-            style={[styles.marqueeText, { color: textColor }]}
-            numberOfLines={1}
-            className="font-calsans text-3xl"
-            onLayout={onTextLayout}
+    <View style={styles.outerContainer} onLayout={onContainerLayout}>
+      <Svg
+        height="60"
+        width="100%"
+        style={StyleSheet.absoluteFillObject}
+        viewBox="0 0 400 60"
+        preserveAspectRatio="none"
+      >
+        <Defs>
+          <ClipPath id="wavyClip">
+            <Path
+              d="M0,20 Q100,5 200,20 T400,20 L400,60 L0,60 Z"
+              fill="none"
+            />
+          </ClipPath>
+        </Defs>
+        <G clipPath="url(#wavyClip)">
+          <Path
+            d="M0,0 L400,0 L400,60 L0,60 Z"
+            fill={backgroundColor}
+          />
+        </G>
+      </Svg>
+
+      <Animated.View
+        style={[
+          styles.container,
+          {
+            backgroundColor: 'transparent',
+            transform: [{ skewY: backgroundSkew }],
+          },
+        ]}
+      >
+        <View style={styles.marqueeContainer}>
+          {/* First copy of text */}
+          <Animated.View
+            style={[
+              styles.textContainer,
+              {
+                transform: [
+                  {
+                    translateX: animatedValue.interpolate({
+                      inputRange: [-1, 0],
+                      outputRange: [0, textWidth],
+                    }),
+                  },
+                ],
+              },
+            ]}
           >
-            {text}
-          </Text>
-        </Animated.View>
-        
-        {/* Second copy of text for seamless loop */}
-        <Animated.View
-          style={[
-            styles.textContainer,
-            {
-              transform: [
-                {
-                  translateX: animatedValue.interpolate({
-                    inputRange: [-1, 0],
-                    outputRange: [textWidth, textWidth * 2],
-                  }),
-                },
-              ],
-            },
-          ]}
-        >
-          <Text
-            style={[styles.marqueeText, { color: textColor }]}
-            numberOfLines={1}
-            className="font-calsans text-3xl"
+            <Text
+              style={[styles.marqueeText, { color: textColor }]}
+              numberOfLines={1}
+              className="font-calsans text-3xl"
+              onLayout={onTextLayout}
+            >
+              {text}
+            </Text>
+          </Animated.View>
+
+          {/* Second copy of text for seamless loop */}
+          <Animated.View
+            style={[
+              styles.textContainer,
+              {
+                transform: [
+                  {
+                    translateX: animatedValue.interpolate({
+                      inputRange: [-1, 0],
+                      outputRange: [textWidth, textWidth * 2],
+                    }),
+                  },
+                ],
+              },
+            ]}
           >
-            {text}
-          </Text>
-        </Animated.View>
-      </View>
-    </Animated.View>
+            <Text
+              style={[styles.marqueeText, { color: textColor }]}
+              numberOfLines={1}
+              className="font-calsans text-3xl"
+            >
+              {text}
+            </Text>
+          </Animated.View>
+        </View>
+      </Animated.View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  outerContainer: {
+    height: 60,
+    width: "110%",
+    marginLeft: "-5%",
+    overflow: "hidden",
+    position: "relative",
+  },
   container: {
     height: 60,
-    width: "110%", // Slightly wider to account for the background effect
+    width: "100%",
     overflow: "hidden",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#000",
     borderRadius: 0,
-    marginLeft: "-5%", // Center the background
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   marqueeContainer: {
     flexDirection: "row",
