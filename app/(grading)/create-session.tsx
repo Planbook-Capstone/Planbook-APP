@@ -1,10 +1,12 @@
 import { gradingSessionSchema } from "@/schemas/gradingSessionSchema";
-import { useCreateGradingSession, useGetOMRTemplates } from "@/services/gradingService";
+import {
+  useCreateGradingSession,
+  useGetOMRTemplates,
+} from "@/services/gradingService";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -14,7 +16,11 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { showMessage } from "react-native-flash-message";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
 // Interface definitions
 interface SectionConfig {
@@ -45,7 +51,8 @@ const CreateGradingSessionScreen = () => {
   console.log("🔎 ID truyền vào:", idBooktype);
 
   // Get OMR templates
-  const { data: omrTemplates, isLoading: isLoadingTemplates } = useGetOMRTemplates();
+  const { data: omrTemplates, isLoading: isLoadingTemplates } =
+    useGetOMRTemplates();
 
   // Log OMR templates data
   console.log("🔍 OMR Templates data:", omrTemplates?.data?.content);
@@ -56,19 +63,21 @@ const CreateGradingSessionScreen = () => {
   const [isStructureDisabled, setIsStructureDisabled] = useState(true);
 
   // Validation errors state
-  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [validationErrors, setValidationErrors] = useState<
+    Record<string, string>
+  >({});
 
   // Form state
   const [formData, setFormData] = useState<FormData>({
     name: "",
-    book_type_id: typeof idBooktype === 'string' ? idBooktype : "",
+    book_type_id: typeof idBooktype === "string" ? idBooktype : "",
     omr_template_id: 1, // Default or based on selection
     section_config_json: [
       {
         sectionOrder: 1,
         sectionType: "MULTIPLE_CHOICE",
         questionCount: "",
-        pointsPerQuestion: ""
+        pointsPerQuestion: "",
       },
       {
         sectionOrder: 2,
@@ -78,16 +87,16 @@ const CreateGradingSessionScreen = () => {
           "1": "",
           "2": "",
           "3": "",
-          "4": ""
-        }
+          "4": "",
+        },
       },
       {
         sectionOrder: 3,
         sectionType: "ESSAY",
         questionCount: "",
-        pointsPerQuestion: ""
-      }
-    ]
+        pointsPerQuestion: "",
+      },
+    ],
   });
 
   // Helper function to get error message for a field
@@ -97,10 +106,10 @@ const CreateGradingSessionScreen = () => {
 
   // Update form data functions
   const updateFormData = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear error for this field when user starts typing
     if (validationErrors[field]) {
-      setValidationErrors(prev => {
+      setValidationErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[field];
         return newErrors;
@@ -108,18 +117,22 @@ const CreateGradingSessionScreen = () => {
     }
   };
 
-  const updateSectionConfig = (sectionIndex: number, field: string, value: any) => {
-    setFormData(prev => ({
+  const updateSectionConfig = (
+    sectionIndex: number,
+    field: string,
+    value: any
+  ) => {
+    setFormData((prev) => ({
       ...prev,
       section_config_json: prev.section_config_json.map((section, index) =>
         index === sectionIndex ? { ...section, [field]: value } : section
-      )
+      ),
     }));
 
     // Clear error for this field when user starts typing
     const fieldPath = `section_config_json.${sectionIndex}.${field}`;
     if (validationErrors[fieldPath]) {
-      setValidationErrors(prev => {
+      setValidationErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[fieldPath];
         return newErrors;
@@ -127,7 +140,7 @@ const CreateGradingSessionScreen = () => {
     }
   };
 
-    const handleSelectTemplate = (template: any) => {
+  const handleSelectTemplate = (template: any) => {
     setSelectedTemplate(template);
     updateFormData("omr_template_id", template.id);
     setShowTemplateModal(false);
@@ -139,9 +152,14 @@ const CreateGradingSessionScreen = () => {
       const newSections = [...prev.section_config_json];
       const trueFalseSection = newSections[1];
 
-      if (trueFalseSection && trueFalseSection.sectionType === 'TRUE_FALSE') {
+      if (trueFalseSection && trueFalseSection.sectionType === "TRUE_FALSE") {
         // Ensure rule exists and has a default structure
-        const currentRule = trueFalseSection.rule || { "1": "", "2": "", "3": "", "4": "" };
+        const currentRule = trueFalseSection.rule || {
+          "1": "",
+          "2": "",
+          "3": "",
+          "4": "",
+        };
 
         // Create the updated rule
         const updatedRule = {
@@ -159,7 +177,7 @@ const CreateGradingSessionScreen = () => {
     // Clear error for this field when user starts typing
     const fieldPath = `section_config_json.1.rule.${ruleKey}`;
     if (validationErrors[fieldPath]) {
-      setValidationErrors(prev => {
+      setValidationErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[fieldPath];
         return newErrors;
@@ -172,7 +190,10 @@ const CreateGradingSessionScreen = () => {
     // Clear previous errors
     setValidationErrors({});
 
-    console.log("📝 Dữ liệu người dùng nhập (trước khi validate):", JSON.stringify(formData, null, 2));
+    console.log(
+      "📝 Dữ liệu người dùng nhập (trước khi validate):",
+      JSON.stringify(formData, null, 2)
+    );
 
     const result = gradingSessionSchema.safeParse(formData);
 
@@ -185,7 +206,7 @@ const CreateGradingSessionScreen = () => {
       result.error.issues.forEach((issue) => {
         // The path from Zod is the complete path to the field.
         // We just need to join it to create the key for our state.
-        const path = issue.path.join('.');
+        const path = issue.path.join(".");
         errors[path] = issue.message;
       });
 
@@ -197,23 +218,37 @@ const CreateGradingSessionScreen = () => {
 
     try {
       // Log request data before submitting
-      console.log("📤 Request data trước khi POST:", JSON.stringify(validatedData, null, 2));
+      console.log(
+        "📤 Request data trước khi POST:",
+        JSON.stringify(validatedData, null, 2)
+      );
 
       // Submit data
-      await createGradingSessionMutation.mutateAsync(validatedData as any);
+      const response = await createGradingSessionMutation.mutateAsync(validatedData as any);
 
-      Alert.alert(
-        "Thành công",
-        "Phiên chấm điểm đã được tạo thành công!",
-        [
-          {
-            text: "OK",
-            onPress: () => router.back()
+      showMessage({
+        message: response?.data?.message || "Tạo phiên thành công!",
+        type: "success",
+        icon: "success",
+      });
+      router.back();
+    } catch (e: any) {
+       let message = "Đã xảy ra lỗi không xác định";
+
+        // Nếu có response và có data
+        if (e?.response?.data) {
+          const data = e.response.data;
+          if (typeof data === "string") {
+            message = data;
+          } else if (typeof data === "object" && data.message) {
+            message = data.message;
           }
-        ]
-      );
-    } catch (error) {
-      Alert.alert("Lỗi", "Có lỗi xảy ra khi tạo phiên chấm điểm");
+        }
+      showMessage({
+        message: message,
+        type: "danger",
+        icon: "danger",
+      });
     }
   };
 
@@ -239,7 +274,9 @@ const CreateGradingSessionScreen = () => {
                 }`}
               />
               {getFieldError("name") && (
-                <Text className="text-red-500 text-xs mt-1 mb-3">{getFieldError("name")}</Text>
+                <Text className="text-red-500 text-xs mt-1 mb-3">
+                  {getFieldError("name")}
+                </Text>
               )}
               {!getFieldError("name") && <View className="mb-4" />}
 
@@ -247,16 +284,22 @@ const CreateGradingSessionScreen = () => {
               <TouchableOpacity
                 onPress={() => setShowTemplateModal(true)}
                 className={`border rounded-md px-4 py-3 flex-row justify-between items-center ${
-                  getFieldError("omr_template_id") ? "border-red-500" : "border-gray-200"
+                  getFieldError("omr_template_id")
+                    ? "border-red-500"
+                    : "border-gray-200"
                 }`}
               >
                 <Text className="text-sm text-gray-700">
-                  {selectedTemplate ? selectedTemplate.name : "Vui lòng chọn mẫu phiếu OMR"}
+                  {selectedTemplate
+                    ? selectedTemplate.name
+                    : "Vui lòng chọn mẫu phiếu OMR"}
                 </Text>
                 <Text className="text-gray-500">{">"}</Text>
               </TouchableOpacity>
               {getFieldError("omr_template_id") && (
-                <Text className="text-red-500 text-xs mt-1">{getFieldError("omr_template_id")}</Text>
+                <Text className="text-red-500 text-xs mt-1">
+                  {getFieldError("omr_template_id")}
+                </Text>
               )}
 
               {/* <View className="flex-row justify-between items-center">
@@ -269,7 +312,10 @@ const CreateGradingSessionScreen = () => {
           </View>
 
           {/* Section 2: Cấu trúc đề thi */}
-          <View className={`mb-6 ${isStructureDisabled ? 'opacity-50' : ''}`} pointerEvents={isStructureDisabled ? 'none' : 'auto'}>
+          <View
+            className={`mb-6 ${isStructureDisabled ? "opacity-50" : ""}`}
+            pointerEvents={isStructureDisabled ? "none" : "auto"}
+          >
             <View className="flex-row items-center justify-between mb-3">
               <Text className="text-base font-bold">2. Cấu trúc đề thi</Text>
               <TouchableOpacity className="flex-row items-center px-4 py-2 bg-gradient-to-r from-indigo-600 to-cyan-400 rounded-full">
@@ -294,34 +340,49 @@ const CreateGradingSessionScreen = () => {
                 placeholderTextColor="#9ca3af"
                 keyboardType="numeric"
                 value={formData.section_config_json[0].questionCount.toString()}
-                onChangeText={(text) => updateSectionConfig(0, "questionCount", parseInt(text) || 0)}
+                onChangeText={(text) =>
+                  updateSectionConfig(0, "questionCount", parseInt(text) || 0)
+                }
                 className={`border rounded-md px-4 py-3 text-sm text-gray-900 ${
-                  getFieldError("section_config_json.0.questionCount") ? "border-red-500" : "border-gray-200"
+                  getFieldError("section_config_json.0.questionCount")
+                    ? "border-red-500"
+                    : "border-gray-200"
                 }`}
               />
               {getFieldError("section_config_json.0.questionCount") && (
-                <Text className="text-red-500 text-xs mt-1 mb-3">{getFieldError("section_config_json.0.questionCount")}</Text>
+                <Text className="text-red-500 text-xs mt-1 mb-3">
+                  {getFieldError("section_config_json.0.questionCount")}
+                </Text>
               )}
-              {!getFieldError("section_config_json.0.questionCount") && <View className="mb-4" />}
+              {!getFieldError("section_config_json.0.questionCount") && (
+                <View className="mb-4" />
+              )}
 
               <Text className="mb-1 text-sm text-gray-800">Điểm / câu</Text>
               <TextInput
                 placeholder="0.25"
                 placeholderTextColor="#9ca3af"
                 keyboardType="decimal-pad"
-                value={formData.section_config_json[0].pointsPerQuestion?.toString() || ''}
+                value={
+                  formData.section_config_json[0].pointsPerQuestion?.toString() ||
+                  ""
+                }
                 onChangeText={(text) => {
-                  const sanitizedText = text.replace(/,/g, '.');
+                  const sanitizedText = text.replace(/,/g, ".");
                   if (/^\d*\.?\d*$/.test(sanitizedText)) {
                     updateSectionConfig(0, "pointsPerQuestion", sanitizedText);
                   }
                 }}
                 className={`border rounded-md px-4 py-3 text-sm text-gray-900 ${
-                  getFieldError("section_config_json.0.pointsPerQuestion") ? "border-red-500" : "border-gray-200"
+                  getFieldError("section_config_json.0.pointsPerQuestion")
+                    ? "border-red-500"
+                    : "border-gray-200"
                 }`}
               />
               {getFieldError("section_config_json.0.pointsPerQuestion") && (
-                <Text className="text-red-500 text-xs mt-1">{getFieldError("section_config_json.0.pointsPerQuestion")}</Text>
+                <Text className="text-red-500 text-xs mt-1">
+                  {getFieldError("section_config_json.0.pointsPerQuestion")}
+                </Text>
               )}
             </View>
 
@@ -340,15 +401,23 @@ const CreateGradingSessionScreen = () => {
                 placeholderTextColor="#9ca3af"
                 keyboardType="numeric"
                 value={formData.section_config_json[1].questionCount.toString()}
-                onChangeText={(text) => updateSectionConfig(1, "questionCount", parseInt(text) || 0)}
+                onChangeText={(text) =>
+                  updateSectionConfig(1, "questionCount", parseInt(text) || 0)
+                }
                 className={`border rounded-md px-4 py-3 text-sm text-gray-900 ${
-                  getFieldError("section_config_json.1.questionCount") ? "border-red-500" : "border-gray-200"
+                  getFieldError("section_config_json.1.questionCount")
+                    ? "border-red-500"
+                    : "border-gray-200"
                 }`}
               />
               {getFieldError("section_config_json.1.questionCount") && (
-                <Text className="text-red-500 text-xs mt-1 mb-3">{getFieldError("section_config_json.1.questionCount")}</Text>
+                <Text className="text-red-500 text-xs mt-1 mb-3">
+                  {getFieldError("section_config_json.1.questionCount")}
+                </Text>
               )}
-              {!getFieldError("section_config_json.1.questionCount") && <View className="mb-4" />}
+              {!getFieldError("section_config_json.1.questionCount") && (
+                <View className="mb-4" />
+              )}
 
               <Text className="text-sm font-semibold text-gray-800 mb-2">
                 Số điểm 1 câu:
@@ -356,8 +425,13 @@ const CreateGradingSessionScreen = () => {
 
               {["Đúng 1 Ý", "Đúng 2 Ý", "Đúng 3 Ý", "Đúng 4 Ý"].map(
                 (label, index) => {
-                  const ruleKey = (index + 1).toString() as "1" | "2" | "3" | "4";
-                  const currentValue = formData.section_config_json[1].rule?.[ruleKey] || '';
+                  const ruleKey = (index + 1).toString() as
+                    | "1"
+                    | "2"
+                    | "3"
+                    | "4";
+                  const currentValue =
+                    formData.section_config_json[1].rule?.[ruleKey] || "";
 
                   return (
                     <View key={index} className="mb-3">
@@ -368,19 +442,27 @@ const CreateGradingSessionScreen = () => {
                         placeholder={["0.1", "0.25", "0.5", "1"][index]}
                         keyboardType="decimal-pad"
                         placeholderTextColor="#9ca3af"
-                        value={currentValue.toString() || ''}
+                        value={currentValue.toString() || ""}
                         onChangeText={(text) => {
-                          const sanitizedText = text.replace(/,/g, '.');
+                          const sanitizedText = text.replace(/,/g, ".");
                           if (/^\d*\.?\d*$/.test(sanitizedText)) {
                             updateTrueFalseRule(ruleKey, sanitizedText);
                           }
                         }}
                         className={`border rounded-md px-4 py-3 text-sm text-gray-900 ${
-                          getFieldError(`section_config_json.1.rule.${ruleKey}`) ? "border-red-500" : "border-gray-200"
+                          getFieldError(`section_config_json.1.rule.${ruleKey}`)
+                            ? "border-red-500"
+                            : "border-gray-200"
                         }`}
                       />
-                      {getFieldError(`section_config_json.1.rule.${ruleKey}`) && (
-                        <Text className="text-red-500 text-xs mt-1">{getFieldError(`section_config_json.1.rule.${ruleKey}`)}</Text>
+                      {getFieldError(
+                        `section_config_json.1.rule.${ruleKey}`
+                      ) && (
+                        <Text className="text-red-500 text-xs mt-1">
+                          {getFieldError(
+                            `section_config_json.1.rule.${ruleKey}`
+                          )}
+                        </Text>
                       )}
                     </View>
                   );
@@ -403,34 +485,49 @@ const CreateGradingSessionScreen = () => {
                 placeholderTextColor="#9ca3af"
                 keyboardType="numeric"
                 value={formData.section_config_json[2].questionCount.toString()}
-                onChangeText={(text) => updateSectionConfig(2, "questionCount", parseInt(text) || 0)}
+                onChangeText={(text) =>
+                  updateSectionConfig(2, "questionCount", parseInt(text) || 0)
+                }
                 className={`border rounded-md px-4 py-3 text-sm text-gray-900 ${
-                  getFieldError("section_config_json.2.questionCount") ? "border-red-500" : "border-gray-200"
+                  getFieldError("section_config_json.2.questionCount")
+                    ? "border-red-500"
+                    : "border-gray-200"
                 }`}
               />
               {getFieldError("section_config_json.2.questionCount") && (
-                <Text className="text-red-500 text-xs mt-1 mb-3">{getFieldError("section_config_json.2.questionCount")}</Text>
+                <Text className="text-red-500 text-xs mt-1 mb-3">
+                  {getFieldError("section_config_json.2.questionCount")}
+                </Text>
               )}
-              {!getFieldError("section_config_json.2.questionCount") && <View className="mb-4" />}
+              {!getFieldError("section_config_json.2.questionCount") && (
+                <View className="mb-4" />
+              )}
 
               <Text className="mb-1 text-sm text-gray-800">Điểm / câu</Text>
               <TextInput
                 placeholder="0.5"
                 placeholderTextColor="#9ca3af"
                 keyboardType="decimal-pad"
-                value={formData.section_config_json[2].pointsPerQuestion?.toString() || ''}
+                value={
+                  formData.section_config_json[2].pointsPerQuestion?.toString() ||
+                  ""
+                }
                 onChangeText={(text) => {
-                  const sanitizedText = text.replace(/,/g, '.');
+                  const sanitizedText = text.replace(/,/g, ".");
                   if (/^\d*\.?\d*$/.test(sanitizedText)) {
                     updateSectionConfig(2, "pointsPerQuestion", sanitizedText);
                   }
                 }}
                 className={`border rounded-md px-4 py-3 text-sm text-gray-900 ${
-                  getFieldError("section_config_json.2.pointsPerQuestion") ? "border-red-500" : "border-gray-200"
+                  getFieldError("section_config_json.2.pointsPerQuestion")
+                    ? "border-red-500"
+                    : "border-gray-200"
                 }`}
               />
               {getFieldError("section_config_json.2.pointsPerQuestion") && (
-                <Text className="text-red-500 text-xs mt-1">{getFieldError("section_config_json.2.pointsPerQuestion")}</Text>
+                <Text className="text-red-500 text-xs mt-1">
+                  {getFieldError("section_config_json.2.pointsPerQuestion")}
+                </Text>
               )}
             </View>
           </View>
@@ -442,13 +539,17 @@ const CreateGradingSessionScreen = () => {
               disabled={createGradingSessionMutation.isPending}
               className={`rounded-lg py-4 flex-row justify-center items-center ${
                 createGradingSessionMutation.isPending
-                  ? 'bg-gray-400'
-                  : 'bg-blue-600'
+                  ? "bg-gray-400"
+                  : "bg-blue-600"
               }`}
             >
               {createGradingSessionMutation.isPending ? (
                 <>
-                  <ActivityIndicator size="small" color="white" className="mr-2" />
+                  <ActivityIndicator
+                    size="small"
+                    color="white"
+                    className="mr-2"
+                  />
                   <Text className="text-white font-semibold text-base">
                     Đang tạo...
                   </Text>
