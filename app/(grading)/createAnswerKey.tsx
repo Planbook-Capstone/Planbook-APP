@@ -95,7 +95,7 @@ export default function CreateAnswerKeyScreen() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center px-4 py-3 border-b border-gray-100">
+      {/* <View className="flex-row items-center px-4 py-3 border-b border-gray-100">
         <TouchableOpacity
           onPress={() => router.back()}
           className="flex-row items-center mr-2"
@@ -128,7 +128,7 @@ export default function CreateAnswerKeyScreen() {
             <Text className="text-2xl font-normal text-black">Tạo mới</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </View> */}
 
       <ScrollView
         className="flex-1 px-8 py-8"

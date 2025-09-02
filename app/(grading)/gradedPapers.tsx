@@ -184,7 +184,7 @@ export default function GradedPapersScreen() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center px-6 py-4 border-b border-gray-100">
+      {/* <View className="flex-row items-center px-6 py-4 border-b border-gray-100">
         <TouchableOpacity
           onPress={() => router.back()}
           className="flex-row items-center"
@@ -203,10 +203,10 @@ export default function GradedPapersScreen() {
         >
           Bài đã chấm
         </Text>
-      </View>
+      </View> */}
 
       {/* Summary Stats */}
-      <View className="flex-row justify-around py-4 bg-gray-50 border-b border-gray-100">
+      <View className="flex-row justify-around py-4 bg-white border-b border-gray-100">
         <View className="items-center">
           <Text
             className="text-2xl font-bold text-blue-600"
