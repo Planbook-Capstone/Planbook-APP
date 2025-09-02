@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text } from "react-native";
+import { Text, View } from "react-native";
 import TrueFalseItem from "./TrueFalseItem";
 
 type TrueFalseAnswer = "Đ" | "S" | null;
@@ -15,15 +15,16 @@ interface TrueFalseQuestion {
 }
 
 interface TrueFalseSectionProps {
-  question: TrueFalseQuestion;
+  questions: TrueFalseQuestion[]; // Array of questions instead of single question
   onAnswerChange: (
+    questionId: number,
     subQuestion: keyof TrueFalseQuestion["subQuestions"],
     answer: TrueFalseAnswer
   ) => void;
 }
 
 export default function TrueFalseSection({
-  question,
+  questions,
   onAnswerChange,
 }: TrueFalseSectionProps) {
   return (
@@ -32,33 +33,34 @@ export default function TrueFalseSection({
         Phần 2 - Đúng/sai
       </Text>
 
-      <View className="gap-2">
-        <Text className="text-xl font-normal text-black mb-1">Câu 1:</Text>
+      {questions.map((question) => (
+        <View key={question.id} className="mb-6">
+          <Text className="text-xl font-normal text-black mb-2">Câu {question.id}:</Text>
 
-        <TrueFalseItem
-          label="a"
-          selectedAnswer={question.subQuestions.a}
-          onAnswerChange={(answer) => onAnswerChange("a", answer)}
-        />
-
-        <TrueFalseItem
-          label="b"
-          selectedAnswer={question.subQuestions.b}
-          onAnswerChange={(answer) => onAnswerChange("b", answer)}
-        />
-
-        <TrueFalseItem
-          label="c"
-          selectedAnswer={question.subQuestions.c}
-          onAnswerChange={(answer) => onAnswerChange("c", answer)}
-        />
-
-        <TrueFalseItem
-          label="d"
-          selectedAnswer={question.subQuestions.d}
-          onAnswerChange={(answer) => onAnswerChange("d", answer)}
-        />
-      </View>
+          <View className="gap-2">
+            <TrueFalseItem
+              label="a"
+              selectedAnswer={question.subQuestions.a}
+              onAnswerChange={(answer) => onAnswerChange(question.id, "a", answer)}
+            />
+            <TrueFalseItem
+              label="b"
+              selectedAnswer={question.subQuestions.b}
+              onAnswerChange={(answer) => onAnswerChange(question.id, "b", answer)}
+            />
+            <TrueFalseItem
+              label="c"
+              selectedAnswer={question.subQuestions.c}
+              onAnswerChange={(answer) => onAnswerChange(question.id, "c", answer)}
+            />
+            <TrueFalseItem
+              label="d"
+              selectedAnswer={question.subQuestions.d}
+              onAnswerChange={(answer) => onAnswerChange(question.id, "d", answer)}
+            />
+          </View>
+        </View>
+      ))}
     </View>
   );
 }
