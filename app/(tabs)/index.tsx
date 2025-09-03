@@ -29,7 +29,7 @@ export default function HomeScreen() {
   };
 
   // --- Pagination states ---
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(0);
   const pageSize = 20;
   const [historyData, setHistoryData] = useState<any[]>([]);
   const [refreshing, setRefreshing] = useState(false);
@@ -49,7 +49,7 @@ export default function HomeScreen() {
       { retry: 1, staleTime: 0 },
       {
         userId: user?.id,
-        offset: (currentPage - 1) * pageSize,
+        offset: currentPage,
         pageSize,
         sortBy: "createdAt",
         sortDirection: "desc",
@@ -69,7 +69,7 @@ export default function HomeScreen() {
         setHasMoreData(true);
       }
 
-      if (currentPage === 1) {
+      if (currentPage === 0) {
         setHistoryData(toolLogs.data.content);
       } else {
         setHistoryData((prev) => [...prev, ...toolLogs.data.content]);
@@ -99,7 +99,7 @@ export default function HomeScreen() {
   // Refresh list
   const handleRefresh = () => {
     setRefreshing(true);
-    setCurrentPage(1);
+    setCurrentPage(0);
     setHistoryData([]);
     setHasMoreData(true); // Reset hasMoreData khi refresh
     setRefreshing(false);
@@ -139,25 +139,7 @@ export default function HomeScreen() {
     </View>
   );
 
-  const ListFooter = () => {
-    if (isLoadingToolLogs && currentPage > 1) {
-      return (
-        <View className="py-4 items-center">
-          <ActivityIndicator size="small" color="#6b7280" />
-        </View>
-      );
-    }
 
-    if (!hasMoreData && historyData.length > 0) {
-      return (
-        <View className="py-4 items-center">
-          <Text className="text-gray-500 text-sm">Đã hiển thị tất cả</Text>
-        </View>
-      );
-    }
-
-    return null;
-  };
 
   const { data: wallet } = useWalletService();
   return (
@@ -191,22 +173,31 @@ export default function HomeScreen() {
 
       <FlatList
         data={historyData}
-        keyExtractor={(item) => item.id?.toString() || String(item.id)}
+        keyExtractor={(item, index) => `${item.id}-${index}`}
         renderItem={({ item, index }) => (
           <HistoryItem item={item} isLast={index === historyData.length - 1} />
         )}
         ListHeaderComponent={ListHeader}
-        ListFooterComponent={ListFooter}
+        ListEmptyComponent={
+          !isLoadingToolLogs ? (
+            <View className="flex-1 items-center justify-center mt-20">
+              <Text className="text-lg text-gray-500">
+                Chưa có lịch sử nào
+              </Text>
+            </View>
+          ) : null
+        }
         onEndReached={loadMoreHistory}
-        onEndReachedThreshold={0.3} // Giảm xuống để trigger sớm hơn
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={
+          isLoadingToolLogs && currentPage > 0 ? (
+            <ActivityIndicator size="small" className="my-4" />
+          ) : null
+        }
         onRefresh={handleRefresh}
         refreshing={refreshing}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
-        removeClippedSubviews={false} // Đảm bảo render đúng trên Android
-        maxToRenderPerBatch={10} // Tối ưu hiệu suất
-        windowSize={10} // Tối ưu hiệu suất
-        initialNumToRender={10} // Số lượng item render ban đầu
       />
     </SafeAreaView>
   );
