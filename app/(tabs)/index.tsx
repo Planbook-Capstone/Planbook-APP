@@ -13,6 +13,8 @@ import {
   Text,
   View,
 } from "react-native";
+import HeaderIcon from "@/assets/images/header.svg";
+import TokenIcon from "@/assets/images/icons/token.svg";
 
 // --- Main Screen Component --- //
 
@@ -160,11 +162,31 @@ export default function HomeScreen() {
   const { data: wallet } = useWalletService();
   return (
     <SafeAreaView className="flex-1 bg-white pb-[100px]">
-      <View className="w-full overflow-hidden pt-10">
+      <View className="w-full overflow-hidden ">
         {/* <MarqueeHeader 
           text="PLANBOOK PLANBOOK PLANBOOK PLANBOOK"
           speed={6000}
         /> */}
+        <HeaderIcon />
+        <View
+          className="absolute bottom-1 right-3 rounded-full p-2 flex flex-row justify-center items-center mt-1 bg-white"
+          style={{
+            boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.15)",
+            shadowColor: "rgba(0, 0, 0, 0.15)",
+            shadowOffset: {
+              width: 0,
+              height: 2,
+            },
+            shadowOpacity: 1,
+            shadowRadius: 8,
+            elevation: 6, // For Android
+          }}
+        >
+          <TokenIcon />
+          <Text className="text-2xl font-bold text-gray-800">
+            {wallet?.data?.balance || 0}
+          </Text>
+        </View>
       </View>
 
       <FlatList
