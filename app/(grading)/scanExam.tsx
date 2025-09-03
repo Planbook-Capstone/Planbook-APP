@@ -1,18 +1,20 @@
 import { apiSecondary } from "@/config/axios";
+import { useGetGradingSessionById } from "@/services/gradingService";
+import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import * as ImageManipulator from "expo-image-manipulator";
+import { useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   SafeAreaView,
+  ScrollView,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import DocumentScanner from "react-native-document-scanner-plugin";
-import * as MediaLibrary from "expo-media-library";
-import { useLocalSearchParams } from "expo-router";
-import { useGetGradingSessionById } from "@/services/gradingService";
 
 // === MIME ===
 const getMimeType = (uri: string): string => {
@@ -51,38 +53,63 @@ export const uploadAnswerSheetImage = async (
     });
 
     console.log("📬 Server response:", res.data);
-    Alert.alert("✅ Gửi ảnh thành công!", JSON.stringify(res.data, null, 2));
+    return res.data; // Return data instead of showing alert
   } catch (err: any) {
     console.error("❌ Upload error:", err.message);
-    Alert.alert("❌ Lỗi gửi ảnh", err.message || "Không rõ lỗi");
+    throw err; // Throw error to be handled by caller
   }
 };
 
-export default function ScanLikeNotes() {
+type ScanState =
+  | "idle"
+  | "scanning"
+  | "scanned"
+  | "processing"
+  | "success"
+  | "error";
+
+interface ScanResult {
+  id: string;
+  imageUri: string;
+  result?: any;
+  timestamp: Date;
+  status: "processing" | "success" | "error";
+}
+
+export default function ScanExam() {
   const [uri, setUri] = useState<string | null>(null);
-  const [sending, setSending] = useState(false);
+  const [scanState, setScanState] = useState<ScanState>("idle");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [scanResults, setScanResults] = useState<ScanResult[]>([]);
+  const [currentResult, setCurrentResult] = useState<any>(null);
 
   const { id: idGradingSession } = useLocalSearchParams();
-  const {
-    data: gradingSessionData,
-    isLoading,
-    error,
-  } = useGetGradingSessionById(idGradingSession as string, {
-    enabled: !!idGradingSession,
-  });
+  const { data: gradingSessionData } = useGetGradingSessionById(
+    idGradingSession as string,
+    {
+      enabled: !!idGradingSession,
+    }
+  );
 
   const answerSheetKeys = gradingSessionData?.data?.answer_sheet_keys || [];
+  const sessionName = gradingSessionData?.data?.name || "Phiên chấm điểm";
 
   const scan = async () => {
     try {
+      setScanState("scanning");
       const { scannedImages, status } = await DocumentScanner.scanDocument({
         croppedImageQuality: 95,
       });
 
-      if (status !== "success" || !scannedImages?.length) return;
+      if (status !== "success" || !scannedImages?.length) {
+        setScanState("idle");
+        return;
+      }
 
       setUri(scannedImages[0]);
+      setScanState("scanned");
     } catch (e: any) {
+      setScanState("error");
       Alert.alert("Scan lỗi", e?.message ?? "Không thể quét.");
     }
   };
@@ -91,7 +118,8 @@ export default function ScanLikeNotes() {
     if (!uri) return;
 
     try {
-      setSending(true);
+      setScanState("processing");
+      setIsProcessing(true);
 
       // Resize và nén ảnh trước khi upload
       const optimized = await ImageManipulator.manipulateAsync(
@@ -100,95 +128,192 @@ export default function ScanLikeNotes() {
         { compress: 0.8, format: ImageManipulator.SaveFormat.JPEG }
       );
 
-      // ✅ Truyền answerSheetKeys vào đây
-      await uploadAnswerSheetImage(optimized.uri, answerSheetKeys);
+      // Gọi API chấm điểm
+      const result = await uploadAnswerSheetImage(
+        optimized.uri,
+        answerSheetKeys
+      );
 
-      // const { status } = await MediaLibrary.requestPermissionsAsync();
-      // if (status === "granted") {
-      //   await MediaLibrary.saveToLibraryAsync(optimized.uri);
-      //   Alert.alert("Đã lưu", "Ảnh đã quét đã lưu vào Photos.");
-      // }
+      // Tạo scan result mới
+      const newScanResult: ScanResult = {
+        id: Date.now().toString(),
+        imageUri: optimized.uri,
+        result: result,
+        timestamp: new Date(),
+        status: "success",
+      };
 
+      // Cập nhật danh sách kết quả
+      setScanResults((prev) => [...prev, newScanResult]);
+      setCurrentResult(result);
+      setScanState("success");
+
+      // Reset để quét tiếp
       setUri(null);
+
+      Alert.alert(
+        "Chấm điểm thành công!",
+        `Điểm: ${result.score || 0}/${
+          result.total_questions || 0
+        }\nBạn có thể quét phiếu tiếp theo.`,
+        [{ text: "OK", onPress: () => setScanState("idle") }]
+      );
     } catch (error: any) {
+      setScanState("error");
       Alert.alert("Lỗi", error?.message || "Không thể xử lý ảnh");
     } finally {
-      setSending(false);
+      setIsProcessing(false);
     }
   };
-  return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#0b0b0b", padding: 16 }}>
-      {!uri ? (
-        <View
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-            gap: 12,
-          }}
-        >
-          <Text style={{ color: "#e5e7eb", fontSize: 18, textAlign: "center" }}>
-            Quét tài liệu như Apple Notes (on-device)
+
+  const resetScan = () => {
+    setUri(null);
+    setScanState("idle");
+    setCurrentResult(null);
+  };
+  const renderScanButton = () => (
+    <View className="flex-1 justify-center items-center px-6 py-8">
+       <View>
+         <Image
+          source={require("@/assets/images/icons/scan-active.png")}
+          style={{ width: 100, height: 100 }}
+        />
+       </View>
+      <Text className="text-gray-900 text-3xl font-bold text-center mb-3">
+        Quét phiếu trả lời
+      </Text>
+      <Text className="text-blue-600 text-xl font-semibold text-center mb-3">
+        {sessionName}
+      </Text>
+      <Text className="text-gray-600 text-base text-center mb-8 leading-6 max-w-sm">
+        Quét từng phiếu một, hệ thống sẽ tự động chấm điểm sau mỗi lần quét
+      </Text>
+
+      {scanResults.length > 0 && (
+        <View className="bg-green-50 border border-green-200 px-6 py-4 rounded-xl mb-8">
+          <Text className="text-green-700 text-base font-semibold text-center">
+            ✅ Đã quét thành công: {scanResults.length} phiếu
           </Text>
-          <TouchableOpacity
-            onPress={scan}
-            style={{
-              backgroundColor: "#22d3ee",
-              padding: 14,
-              borderRadius: 14,
-            }}
-          >
-            <Text style={{ color: "#001a1a", fontWeight: "800" }}>
-              Bắt đầu quét
-            </Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <View style={{ flex: 1 }}>
-          <Image
-            source={{ uri }}
-            style={{ flex: 1 }}
-            contentFit="contain"
-            transition={150}
-          />
-          <View style={{ flexDirection: "row", gap: 12, marginTop: 12 }}>
-            <TouchableOpacity
-              onPress={() => setUri(null)}
-              style={{
-                flex: 1,
-                padding: 14,
-                backgroundColor: "#111827",
-                borderRadius: 12,
-              }}
-              disabled={sending}
-            >
-              <Text style={{ color: "#fff", textAlign: "center" }}>
-                {sending ? "Đang xử lý…" : "Quét lại"}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={processAndUpload}
-              style={{
-                flex: 1,
-                padding: 14,
-                backgroundColor: "#22d3ee",
-                borderRadius: 12,
-              }}
-              disabled={sending}
-            >
-              <Text
-                style={{
-                  color: "#001a1a",
-                  textAlign: "center",
-                  fontWeight: "800",
-                }}
-              >
-                {sending ? "Đang gửi..." : "Gửi & Lưu"}
-              </Text>
-            </TouchableOpacity>
-          </View>
         </View>
       )}
+
+      <TouchableOpacity
+        onPress={scan}
+        className={`flex-row items-center justify-center bg-blue-600 px-10 py-5 rounded-2xl shadow-lg ${
+          scanState === "scanning" ? "opacity-50" : ""
+        }`}
+        disabled={scanState === "scanning"}
+      >
+        {scanState === "scanning" ? (
+          <ActivityIndicator color="white" size="small" />
+        ) : (
+          <Ionicons name="camera" size={28} color="white" />
+        )}
+        <Text className="text-white text-xl font-bold ml-3">
+          {scanState === "scanning" ? "Đang quét..." : "Bắt đầu quét"}
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+  const renderImagePreview = () => (
+    <View className="flex-1 p-6">
+      <View className="relative flex-1 bg-gray-50 border border-gray-200 rounded-2xl overflow-hidden mb-6 shadow-sm">
+        <Image
+          source={{ uri: uri! }}
+          className="flex-1"
+          contentFit="contain"
+          transition={150}
+        />
+        {scanState === "processing" && (
+          <View className="absolute inset-0 bg-white/95 justify-center items-center">
+            <ActivityIndicator size="large" color="#3b82f6" />
+            <Text className="text-gray-900 text-xl font-semibold mt-4">
+              Đang chấm điểm...
+            </Text>
+            <Text className="text-gray-600 text-base mt-2">
+              Vui lòng đợi trong giây lát
+            </Text>
+          </View>
+        )}
+      </View>
+
+      <View className="flex-row gap-4">
+        <TouchableOpacity
+          onPress={resetScan}
+          className={`flex-1 flex-row items-center justify-center bg-gray-100 border border-gray-300 py-4 rounded-xl ${
+            isProcessing ? "opacity-50" : ""
+          }`}
+          disabled={isProcessing}
+        >
+          <Ionicons name="refresh" size={22} color="#6b7280" />
+          <Text className="text-gray-700 text-base font-semibold ml-2">
+            Quét lại
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={processAndUpload}
+          className={`flex-1 flex-row items-center justify-center bg-blue-600 py-4 rounded-xl shadow-lg ${
+            isProcessing ? "opacity-50" : ""
+          }`}
+          disabled={isProcessing}
+        >
+          {isProcessing ? (
+            <ActivityIndicator size="small" color="white" />
+          ) : (
+            <Ionicons name="checkmark" size={22} color="white" />
+          )}
+          <Text className="text-white text-base font-bold ml-2">
+            {isProcessing ? "Đang xử lý..." : "Chấm điểm"}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  return (
+    <SafeAreaView className="flex-1 bg-white">
+      <ScrollView
+        className="flex-1"
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ flexGrow: 1 }}
+      >
+        {!uri ? renderScanButton() : renderImagePreview()}
+
+        {scanResults.length > 0 && (
+          <View className="mx-6 mb-6">
+            <Text className="text-gray-900 text-xl font-bold mb-4">
+              Kết quả đã quét ({scanResults.length})
+            </Text>
+            {scanResults
+              .slice(-3)
+              .reverse()
+              .map((result) => (
+                <View
+                  key={result.id}
+                  className="flex-row items-center justify-between bg-gray-50 border border-gray-200 p-4 rounded-xl mb-3 shadow-sm"
+                >
+                  <View className="flex-1">
+                    <Text className="text-gray-500 text-sm mb-1">
+                      {result.timestamp.toLocaleTimeString("vi-VN")}
+                    </Text>
+                    <Text className="text-gray-900 text-base font-semibold">
+                      Điểm: {result.result?.score || 0}/
+                      {result.result?.total_questions || 0}
+                    </Text>
+                  </View>
+                  <Ionicons name="checkmark-circle" size={28} color="#10b981" />
+                </View>
+              ))}
+            {scanResults.length > 3 && (
+              <Text className="text-gray-500 text-sm text-center mt-2">
+                và {scanResults.length - 3} kết quả khác...
+              </Text>
+            )}
+          </View>
+        )}
+      </ScrollView>
     </SafeAreaView>
   );
 }
