@@ -7,8 +7,6 @@ import {
   Modal,
   ActivityIndicator,
   ScrollView,
-  KeyboardAvoidingView,
-  Platform,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useMemo, useState, useEffect, useCallback } from "react";
@@ -211,10 +209,12 @@ const AdvancedFilterModal = ({
     initialValues.fromDate
   );
   const [currentToDate, setCurrentToDate] = useState(initialValues.toDate);
-  
+
   // BƯỚC 2: THÊM STATE CHO DATEPICKER
   const [showPicker, setShowPicker] = useState(false);
-  const [datePickerTarget, setDatePickerTarget] = useState<"from" | "to" | null>(null);
+  const [datePickerTarget, setDatePickerTarget] = useState<
+    "from" | "to" | null
+  >(null);
   const [pickerDate, setPickerDate] = useState(new Date());
 
   useEffect(() => {
@@ -227,8 +227,8 @@ const AdvancedFilterModal = ({
 
   // Hàm định dạng ngày thành chuỗi 'dd-MM-yyyy'
   const formatDate = (date: Date) => {
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
     const year = date.getFullYear();
     return `${day}-${month}-${year}`;
   };
@@ -242,17 +242,17 @@ const AdvancedFilterModal = ({
   // BƯỚC 4: HÀM XỬ LÝ KHI CHỌN NGÀY
   const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
     setShowPicker(false); // Ẩn picker sau khi chọn
-    if (event.type === 'set' && selectedDate) {
+    if (event.type === "set" && selectedDate) {
       const formatted = formatDate(selectedDate);
-      if (datePickerTarget === 'from') {
+      if (datePickerTarget === "from") {
         setCurrentFromDate(formatted);
-      } else if (datePickerTarget === 'to') {
+      } else if (datePickerTarget === "to") {
         setCurrentToDate(formatted);
       }
       setCurrentTimeRange(""); // Bỏ chọn các khoảng thời gian có sẵn
     }
   };
-  
+
   const handleTimeRangeSelect = (value: string) => {
     setCurrentTimeRange(value);
     if (value) {
@@ -304,9 +304,7 @@ const AdvancedFilterModal = ({
                 key={opt.value}
                 onPress={() => handleTimeRangeSelect(opt.value)}
                 className={`px-4 py-2 rounded-full mr-2 mb-2 ${
-                  currentTimeRange === opt.value
-                    ? "bg-blue-500"
-                    : "bg-gray-200"
+                  currentTimeRange === opt.value ? "bg-blue-500" : "bg-gray-200"
                 }`}
               >
                 <Text
@@ -324,7 +322,7 @@ const AdvancedFilterModal = ({
           <Text className="text-base font-semibold mb-2 text-gray-700">
             Ngày tùy chọn
           </Text>
-          
+
           {/* BƯỚC 5: THAY THẾ TEXTINPUT BẰNG TOUCHABLEOPACITY */}
           <View className="flex-row justify-between mb-4">
             <View className="flex-1 mr-2">
@@ -333,8 +331,14 @@ const AdvancedFilterModal = ({
                 onPress={() => handleShowPicker("from")}
                 className="border border-gray-300 rounded-lg p-3 flex-row justify-between items-center"
               >
-                <Text className="text-base">{currentFromDate || "Chọn ngày"}</Text>
-                <MaterialCommunityIcons name="calendar" size={20} color="gray" />
+                <Text className="text-base">
+                  {currentFromDate || "Chọn ngày"}
+                </Text>
+                <MaterialCommunityIcons
+                  name="calendar"
+                  size={20}
+                  color="gray"
+                />
               </TouchableOpacity>
             </View>
             <View className="flex-1 ml-2">
@@ -343,8 +347,14 @@ const AdvancedFilterModal = ({
                 onPress={() => handleShowPicker("to")}
                 className="border border-gray-300 rounded-lg p-3 flex-row justify-between items-center"
               >
-                <Text className="text-base">{currentToDate || "Chọn ngày"}</Text>
-                <MaterialCommunityIcons name="calendar" size={20} color="gray" />
+                <Text className="text-base">
+                  {currentToDate || "Chọn ngày"}
+                </Text>
+                <MaterialCommunityIcons
+                  name="calendar"
+                  size={20}
+                  color="gray"
+                />
               </TouchableOpacity>
             </View>
           </View>
@@ -424,6 +434,8 @@ const OrderHistoryScreen = () => {
     apiParams
   );
 
+  console.log(response?.data?.content[0]);
+
   useEffect(() => {
     if (response?.data?.content) {
       if (currentPage === 1) {
@@ -494,7 +506,7 @@ const OrderHistoryScreen = () => {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView className="flex-1 bg-white">
       <View className="flex-row items-center bg-gray-50">
         <View className="flex-1">
           <FilterBar
@@ -517,10 +529,7 @@ const OrderHistoryScreen = () => {
         data={allOrders}
         keyExtractor={(item, index) => `${item.id}-${index}`}
         renderItem={({ item }) => (
-          <OrderItem
-            item={item}
-            onPress={() => setSelectedOrder(item)}
-          />
+          <OrderItem item={item} onPress={() => setSelectedOrder(item)} />
         )}
         ListEmptyComponent={
           !isFetching ? (
@@ -573,9 +582,7 @@ const OrderHistoryScreen = () => {
             </View>
             <View className="flex-row justify-between py-3">
               <Text className="text-base text-gray-500">Mã đơn hàng</Text>
-              <Text className="text-base font-mono">
-                {selectedOrder?.id}
-              </Text>
+              <Text className="text-base font-mono">{selectedOrder?.id}</Text>
             </View>
             <View className="flex-row justify-between py-3">
               <Text className="text-base text-gray-500">Trạng thái</Text>
@@ -597,13 +604,14 @@ const OrderHistoryScreen = () => {
             <View className="flex-row justify-between py-3">
               <Text className="text-base text-gray-500">Ngày tạo</Text>
               <Text className="text-base">
-                {selectedOrder && new Date(selectedOrder.createdAt).toLocaleString("vi-VN", {
-                  day: "2-digit",
-                  month: "2-digit",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
+                {selectedOrder &&
+                  new Date(selectedOrder.createdAt).toLocaleString("vi-VN", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
               </Text>
             </View>
             <TouchableOpacity
