@@ -67,6 +67,18 @@ export default function RootLayout() {
               }}
             />
 
+            <Stack.Screen
+              name="orderHistory"
+              options={{
+                title: "Lịch sử đơn hàng",
+                headerBackTitle: "Quay lại",
+                headerStyle: {
+                  backgroundColor: "#fff", // nền trắng
+                },
+                headerTintColor: "#000",
+              }}
+            />
+
             <Stack.Screen name="+not-found" />
           </Stack>
 
