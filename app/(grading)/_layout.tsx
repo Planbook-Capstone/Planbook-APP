@@ -95,6 +95,17 @@ export default function GradingLayout() {
           headerTintColor: "#000", // màu chữ + icon
         }}
       />
+
+        <Stack.Screen name="scanExam" 
+         options={{
+          title: "Quét chấm điểm",
+          headerBackTitle: "Quay lại",
+          headerStyle: {
+            backgroundColor: "#fff",
+          },
+          headerTintColor: "#000",
+        }}
+        />  
     </Stack>
   );
 }

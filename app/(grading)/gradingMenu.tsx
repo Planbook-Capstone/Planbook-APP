@@ -21,7 +21,7 @@ export default function GradingMenuScreen() {
     {
       icon: <ScanIcon />,
       title: "Chấm điểm",
-      onPress: () => router.push("/scanExam"),
+      onPress: () => router.push(`/scanExam?id=${idGradingSesstion}`),
     },
     {
       icon: <SendIcon />,
