@@ -5,6 +5,9 @@ import { getTokens, saveTokens } from '@/utils/tokenStorage'; // 1. Import getTo
 
 export const refreshAuthToken = async () => {
   const { refreshToken } = await getTokens();
+
+  console.log(refreshToken, "refreshToken");
+  
   if (refreshToken) {
     const response = await api.post(API_ENDPOINTS.AUTH.REFRESH_TOKEN, {
       refreshToken: refreshToken,

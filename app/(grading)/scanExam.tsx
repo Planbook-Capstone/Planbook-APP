@@ -47,16 +47,18 @@ export const uploadAnswerSheetImage = async (
 
     formData.append("correct_answers", correctAnswersString);
 
-    const res = await apiSecondary.post("/process-image/", formData, {
+    const res = await apiSecondary.post("/mark-correct-answers/", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     });
 
-    
-
-    
-    console.log("📬 Server response:", res.data);
+    console.log("📬 Server response:", res.data.student_code);
+    console.log("📬 Server response:", res.data.exam_code);
+    console.log(
+      "📬 Server response:",
+      JSON.stringify(res.data.student_answer_json, null, 2)
+    );
     return res.data; // Return data instead of showing alert
   } catch (err: any) {
     console.error("❌ Upload error:", err.message);
