@@ -79,7 +79,7 @@ const ProfileScreen = () => {
       icon: "history",
       text: "Lịch sử đơn hàng",
       onPress: () =>
-        Alert.alert("Thông báo", "Điều hướng đến màn hình Lịch sử đơn hàng"),
+       router.push("/orderHistory"),
     },
     {
       icon: "cog",
@@ -112,7 +112,7 @@ const ProfileScreen = () => {
   ];
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-100 pb-[100px] font">
+    <SafeAreaView className="flex-1 bg-white pb-[100px] font">
       <ScrollView>
         {/* Phần Header - ĐÃ CẬP NHẬT DÙNG ẢNH NỀN */}
         <View className="relative items-center">
