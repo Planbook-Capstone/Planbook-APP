@@ -11,7 +11,8 @@ import {
 } from "react-native";
 import DocumentScanner from "react-native-document-scanner-plugin";
 import * as MediaLibrary from "expo-media-library";
-
+import { useLocalSearchParams } from "expo-router";
+import { useGetGradingSessionById } from "@/services/gradingService";
 
 // === MIME ===
 const getMimeType = (uri: string): string => {
@@ -22,8 +23,13 @@ const getMimeType = (uri: string): string => {
 };
 
 // === Gửi API ===
-const uploadToProcessImageAPI = async (imageUri: string) => {
+export const uploadAnswerSheetImage = async (
+  imageUri: string,
+  answerSheetKeys: any[]
+) => {
   try {
+    const correctAnswersString = JSON.stringify(answerSheetKeys);
+
     const formData = new FormData();
     const fileName = imageUri.split("/").pop() || "photo.jpg";
     const mimeType = getMimeType(imageUri);
@@ -34,13 +40,18 @@ const uploadToProcessImageAPI = async (imageUri: string) => {
       type: mimeType,
     } as any);
 
-    const res = await apiSecondary.post("/process-image/", formData, {
+    console.log("correctAnswersString ------- ", correctAnswersString);
+
+    formData.append("correct_answers", correctAnswersString);
+
+    const res = await apiSecondary.post("/mark-correct-answers/", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     });
-    Alert.alert("✅ Gửi ảnh thành công!", JSON.stringify(res.data, null, 2));
+
     console.log("📬 Server response:", res.data);
+    Alert.alert("✅ Gửi ảnh thành công!", JSON.stringify(res.data, null, 2));
   } catch (err: any) {
     console.error("❌ Upload error:", err.message);
     Alert.alert("❌ Lỗi gửi ảnh", err.message || "Không rõ lỗi");
@@ -50,6 +61,17 @@ const uploadToProcessImageAPI = async (imageUri: string) => {
 export default function ScanLikeNotes() {
   const [uri, setUri] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
+
+  const { id: idGradingSession } = useLocalSearchParams();
+  const {
+    data: gradingSessionData,
+    isLoading,
+    error,
+  } = useGetGradingSessionById(idGradingSession as string, {
+    enabled: !!idGradingSession,
+  });
+
+  const answerSheetKeys = gradingSessionData?.data?.answer_sheet_keys || [];
 
   const scan = async () => {
     try {
@@ -75,25 +97,18 @@ export default function ScanLikeNotes() {
       const optimized = await ImageManipulator.manipulateAsync(
         uri,
         [{ resize: { width: 1280 } }],
-        {
-          compress: 0.8,
-          format: ImageManipulator.SaveFormat.JPEG,
-        }
+        { compress: 0.8, format: ImageManipulator.SaveFormat.JPEG }
       );
 
-      console.log("📦 Ảnh đã nén:", optimized.uri);
+      // ✅ Truyền answerSheetKeys vào đây
+      await uploadAnswerSheetImage(optimized.uri, answerSheetKeys);
 
-      // Gửi ảnh đã tối ưu lên server
-      await uploadToProcessImageAPI(optimized.uri);
+      // const { status } = await MediaLibrary.requestPermissionsAsync();
+      // if (status === "granted") {
+      //   await MediaLibrary.saveToLibraryAsync(optimized.uri);
+      //   Alert.alert("Đã lưu", "Ảnh đã quét đã lưu vào Photos.");
+      // }
 
-        // (tuỳ chọn) Lưu vào thư viện
-        const { status } = await MediaLibrary.requestPermissionsAsync();
-        if (status === "granted") {
-          await MediaLibrary.saveToLibraryAsync(optimized.uri);
-          Alert.alert("Đã lưu", "Ảnh đã quét đã lưu vào Photos.");
-        }
-
-      // Reset
       setUri(null);
     } catch (error: any) {
       Alert.alert("Lỗi", error?.message || "Không thể xử lý ảnh");
@@ -101,7 +116,6 @@ export default function ScanLikeNotes() {
       setSending(false);
     }
   };
-
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#0b0b0b", padding: 16 }}>
       {!uri ? (
