@@ -7,14 +7,13 @@ import {
   Modal,
   ActivityIndicator,
   ScrollView,
-  TextInput, // Giữ lại TextInput nếu cần ở nơi khác, nhưng không dùng trong modal nữa
-  KeyboardAvoidingView,
-  Platform,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useMemo, useState, useEffect } from "react";
 import { useWalletTransactionsService } from "@/services/walletServices";
 import { Transaction } from "@/types/wallet";
+import CardSendIcon from "@/assets/images/icons/card-send.svg";
+import CardReceive from "@/assets/images/icons/card-receive.svg";
 // BƯỚC 1: IMPORT DATETIMEPICKER
 import DateTimePicker, {
   DateTimePickerEvent,
@@ -53,7 +52,7 @@ const TransactionItem = ({ item, onPress }: TransactionItemProps) => {
       onPress={onPress}
       className="flex-row items-center p-4 bg-white border-b border-gray-100 active:bg-gray-50"
     >
-      <View
+      {/* <View
         className={`w-12 h-12 rounded-full items-center justify-center ${
           !isDebit ? "bg-green-100" : "bg-red-100"
         }`}
@@ -63,17 +62,21 @@ const TransactionItem = ({ item, onPress }: TransactionItemProps) => {
           size={28}
           className={styleConfig.color}
         />
-      </View>
+      </View> */}
+
+      {isDebit ? (
+        <CardSendIcon width={32} height={32} />
+      ) : (
+        <CardReceive width={32} height={32} />
+      )}
+
       <View className="flex-1 mx-4">
-        <Text
-          className="text-base font-semibold text-gray-800"
-          numberOfLines={2}
-        >
+        <Text className="text-base font-questrial w-[90%] " numberOfLines={2}>
           {item.description}
         </Text>
-        <Text className="text-sm text-gray-500 mt-1">{formattedDate}</Text>
+        <Text className="text-sm text-neutral-400 mt-1">{formattedDate}</Text>
       </View>
-      <Text className={`text-lg font-bold ${styleConfig.color}`}>
+      <Text className={`text-lg font-calsans ${styleConfig.color}`}>
         {item.tokenChange.toLocaleString("vi-VN")}
       </Text>
     </TouchableOpacity>
@@ -113,7 +116,7 @@ const FilterBar = ({
           <Text
             className={`${
               selectedValue === option.value ? "text-white" : "text-gray-700"
-            } font-semibold`}
+            } font-questrial`}
           >
             {option.label}
           </Text>
@@ -155,10 +158,12 @@ const AdvancedFilterModal = ({
     initialValues.fromDate
   );
   const [currentToDate, setCurrentToDate] = useState(initialValues.toDate);
-  
+
   // BƯỚC 2: THÊM STATE CHO DATEPICKER
   const [showPicker, setShowPicker] = useState(false);
-  const [datePickerTarget, setDatePickerTarget] = useState<"from" | "to" | null>(null);
+  const [datePickerTarget, setDatePickerTarget] = useState<
+    "from" | "to" | null
+  >(null);
   const [pickerDate, setPickerDate] = useState(new Date());
 
   useEffect(() => {
@@ -171,8 +176,8 @@ const AdvancedFilterModal = ({
 
   // Hàm định dạng ngày thành chuỗi 'dd-MM-yyyy'
   const formatDate = (date: Date) => {
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
     const year = date.getFullYear();
     return `${day}-${month}-${year}`;
   };
@@ -186,17 +191,17 @@ const AdvancedFilterModal = ({
   // BƯỚC 4: HÀM XỬ LÝ KHI CHỌN NGÀY
   const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
     setShowPicker(false); // Ẩn picker sau khi chọn
-    if (event.type === 'set' && selectedDate) {
+    if (event.type === "set" && selectedDate) {
       const formatted = formatDate(selectedDate);
-      if (datePickerTarget === 'from') {
+      if (datePickerTarget === "from") {
         setCurrentFromDate(formatted);
-      } else if (datePickerTarget === 'to') {
+      } else if (datePickerTarget === "to") {
         setCurrentToDate(formatted);
       }
       setCurrentTimeRange(""); // Bỏ chọn các khoảng thời gian có sẵn
     }
   };
-  
+
   const handleTimeRangeSelect = (value: string) => {
     setCurrentTimeRange(value);
     if (value) {
@@ -248,9 +253,7 @@ const AdvancedFilterModal = ({
                 key={opt.value}
                 onPress={() => handleTimeRangeSelect(opt.value)}
                 className={`px-4 py-2 rounded-full mr-2 mb-2 ${
-                  currentTimeRange === opt.value
-                    ? "bg-blue-500"
-                    : "bg-gray-200"
+                  currentTimeRange === opt.value ? "bg-blue-500" : "bg-gray-200"
                 }`}
               >
                 <Text
@@ -268,7 +271,7 @@ const AdvancedFilterModal = ({
           <Text className="text-base font-semibold mb-2 text-gray-700">
             Ngày tùy chọn
           </Text>
-          
+
           {/* BƯỚC 5: THAY THẾ TEXTINPUT BẰNG TOUCHABLEOPACITY */}
           <View className="flex-row justify-between mb-4">
             <View className="flex-1 mr-2">
@@ -277,8 +280,14 @@ const AdvancedFilterModal = ({
                 onPress={() => handleShowPicker("from")}
                 className="border border-gray-300 rounded-lg p-3 flex-row justify-between items-center"
               >
-                <Text className="text-base">{currentFromDate || "Chọn ngày"}</Text>
-                <MaterialCommunityIcons name="calendar" size={20} color="gray" />
+                <Text className="text-base">
+                  {currentFromDate || "Chọn ngày"}
+                </Text>
+                <MaterialCommunityIcons
+                  name="calendar"
+                  size={20}
+                  color="gray"
+                />
               </TouchableOpacity>
             </View>
             <View className="flex-1 ml-2">
@@ -287,8 +296,14 @@ const AdvancedFilterModal = ({
                 onPress={() => handleShowPicker("to")}
                 className="border border-gray-300 rounded-lg p-3 flex-row justify-between items-center"
               >
-                <Text className="text-base">{currentToDate || "Chọn ngày"}</Text>
-                <MaterialCommunityIcons name="calendar" size={20} color="gray" />
+                <Text className="text-base">
+                  {currentToDate || "Chọn ngày"}
+                </Text>
+                <MaterialCommunityIcons
+                  name="calendar"
+                  size={20}
+                  color="gray"
+                />
               </TouchableOpacity>
             </View>
           </View>
