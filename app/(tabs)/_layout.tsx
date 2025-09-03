@@ -1,11 +1,7 @@
 import { Tabs } from "expo-router";
-import React from "react";
-import { IconSymbol } from "@/components/ui/IconSymbol";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import TabBar from "@/components/tabBar/TabBar";
-import HomeIcon from "@/assets/images/icons/home-active.svg";
-import UserIcon from "@/assets/images/icons/user.svg";
 import SVGIcon from "@/components/ui/SVGIcon";
 
 export default function TabLayout() {

@@ -42,6 +42,25 @@ export default function RootLayout() {
   if (!fontsLoaded && !fontError) {
     return null;
   }
+  const commonHeaderOptions = {
+    headerBackTitle: "Quay lại",
+    headerBackTitleStyle: {
+      fontFamily: "Questrial",
+    },
+    // headerStyle: {
+    //   backgroundColor: "#fff", // nền trắng
+    //   elevation: 0, // Loại bỏ shadow trên Android
+    //   shadowOpacity: 0, // Loại bỏ shadow trên iOS
+    //   borderBottomWidth: 0, // Loại bỏ border bottom
+    //   height: 60, // Chiều cao của header
+    // },
+    headerTitleStyle: {
+      fontFamily: "CalSans",
+      fontSize: 20, // Kích thước font
+    },
+    headerTitleAlign: "left" as "left" | "center", // Căn lề trái cho title với type assertion
+    headerTintColor: "#000", // màu chữ + icon
+  };
 
   // Khi font đã sẵn sàng, render toàn bộ ứng dụng
   return (
@@ -50,11 +69,10 @@ export default function RootLayout() {
         <ThemeProvider
           value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
         >
-          <Stack>
+          <Stack screenOptions={commonHeaderOptions}>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="(auth)" options={{ headerShown: false }} />
             <Stack.Screen name="(grading)" options={{ headerShown: false }} />
-
             <Stack.Screen
               name="walletHistory"
               options={{

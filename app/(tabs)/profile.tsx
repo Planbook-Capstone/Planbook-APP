@@ -12,7 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-
+import TokenIcon from "@/assets/images/icons/token.svg";
 type IconName = React.ComponentProps<typeof MaterialCommunityIcons>["name"];
 
 type MenuItem = {
@@ -31,8 +31,8 @@ const InfoRow = ({
   value: string | null | undefined;
 }) => (
   <View className="flex-row justify-between items-center py-3 border-b border-gray-100 ">
-    <Text className="text-base text-gray-500">{label}</Text>
-    <Text className="text-base font-semibold text-gray-800">
+    <Text className=" font-questrial text-base text-gray-500">{label}</Text>
+    <Text className="font-questrial text-base font-[600] text-gray-800">
       {value || "Chưa cập nhật"}
     </Text>
   </View>
@@ -78,14 +78,7 @@ const ProfileScreen = () => {
     {
       icon: "history",
       text: "Lịch sử đơn hàng",
-      onPress: () =>
-       router.push("/orderHistory"),
-    },
-    {
-      icon: "cog",
-      text: "Cài đặt",
-      onPress: () =>
-        Alert.alert("Thông báo", "Điều hướng đến màn hình Cài đặt"),
+      onPress: () => router.push("/orderHistory"),
     },
     {
       icon: "logout",
@@ -146,18 +139,13 @@ const ProfileScreen = () => {
         <View className="p-5 mx-4 -mt-6 bg-white rounded-xl shadow-lg">
           <View className="flex-row items-center justify-between">
             <View>
-              <Text className="text-sm text-gray-500">Số dư Token</Text>
+              <Text className="text-sm text-gray-500">Số dư ví</Text>
 
               <View className="flex-row items-center mt-1">
                 <Text className="text-2xl font-bold text-gray-800">
                   {wallet?.data?.balance || 0}
-                  <Image
-                    source={require("@/assets/images/flash.png")} // <-- THAY BẰNG ICON TOKEN
-                    className="ml-2"
-                    height={24}
-                    width={24}
-                  />
                 </Text>
+                <TokenIcon />
               </View>
             </View>
 
@@ -165,18 +153,18 @@ const ProfileScreen = () => {
               className="px-4 py-2 rounded-full bg-blue-100"
               onPress={() => router.push("/walletHistory")}
             >
-              <Text className="font-semibold text-blue-600">Xem lịch sử</Text>
+              <Text className="font-questrial text-blue-600">Xem lịch sử</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         {/* PHẦN THÔNG TIN CÁ NHÂN MỚI */}
         <View className="p-5 mx-4 mt-6 bg-white rounded-xl shadow-lg ">
-          <Text className="text-lg font-calsans text-gray-800 mb-2">
+          <Text className="text-xl font-calsans text-gray-800 mb-2">
             Thông tin cá nhân
           </Text>
           {/* <InfoRow label="Họ và tên" value={user?.fullName} /> */}
-          <InfoRow label="Email" value={user?.email}/>
+          <InfoRow label="Email" value={user?.email} />
           <InfoRow label="Số điện thoại" value={user?.phone} />
           <InfoRow label="Ngày sinh" value={formatBirthday(user?.birthday)} />
           <InfoRow label="Giới tính" value={displayGender(user?.gender)} />
@@ -198,7 +186,9 @@ const ProfileScreen = () => {
                 className={`mr-4 ${item.color || "text-gray-600"}`}
               />
               <Text
-                className={`flex-1 text-base ${item.color || "text-gray-800"}`}
+                className={`font-questrial flex-1 text-base ${
+                  item.color || "text-gray-800"
+                }`}
               >
                 {item.text}
               </Text>
