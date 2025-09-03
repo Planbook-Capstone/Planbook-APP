@@ -33,4 +33,6 @@ export const API_ENDPOINTS = {
   //   GET_ALL: '/product-service/api/products',
   //   GET_BY_ID: (id: string) => `/product-service/api/products/${id}`,
   // }
+    ORDERS: buildEndpoint(ServicePaths.SUBSCRIPTION, "/orders"),
+
 };

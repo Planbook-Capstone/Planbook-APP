@@ -31,6 +31,15 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="orderHistory"
+        options={{
+          title: "Lịch sử đơn hàng",
+          tabBarIcon: ({ color, focused }) => (
+            <SVGIcon iconName="order" color={focused ? "black" : "#D4D4D4"} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="profile"
         options={{
           title: "Hồ sơ",

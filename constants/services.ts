@@ -8,4 +8,5 @@ export const ServicePaths = {
   // SAU NÀY CÓ SERVICE KHÁC THÌ THÊM VÀO ĐÂY
   // PRODUCT_SERVICE: '/product-service',
   // ORDER_SERVICE: '/order-service',
+    SUBSCRIPTION: "purchase-service",
 };
