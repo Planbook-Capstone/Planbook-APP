@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TextInput } from "react-native";
+import { Text, TextInput, View } from "react-native";
 
 interface EssayQuestion {
   id: number;
@@ -9,11 +9,13 @@ interface EssayQuestion {
 interface EssaySectionProps {
   questions: EssayQuestion[];
   onAnswerChange: (questionId: number, answer: string) => void;
+  getFieldError?: (fieldPath: string) => string | undefined;
 }
 
 export default function EssaySection({
   questions,
   onAnswerChange,
+  getFieldError,
 }: EssaySectionProps) {
   return (
     <View className="mb-8">
@@ -21,27 +23,42 @@ export default function EssaySection({
         Phần 3 - Tự luận
       </Text>
 
-      {questions.map((question) => (
-        <View key={question.id} className="mb-4">
-          <View className="flex-row items-start gap-3">
-            <Text className="text-xl font-normal text-black mt-3">
-              Câu {question.id}:
-            </Text>
+      {questions.map((question, index) => {
+        const fieldPath = `essayQuestions.${index}.answer`;
+        const error = getFieldError?.(fieldPath);
 
-            <View className="flex-1 bg-white border border-gray-200 rounded-md p-4 min-h-fit">
-              <TextInput
-                value={question.answer}
-                onChangeText={(text) => onAnswerChange(question.id, text)}
-                placeholder="Nhập đáp án tự luận..."
-                placeholderTextColor="rgba(0, 0, 0, 0.25)"
-                className="text-base font-normal text-black flex-1"
-                multiline={true}
-                textAlignVertical="top"
-              />
+        return (
+          <View key={question.id} className="mb-4">
+            <View className="flex-row items-start gap-3">
+              <Text className="text-xl font-normal text-black mt-3">
+                Câu {question.id}:
+              </Text>
+
+              <View className="flex-1">
+                <View className={`bg-white border rounded-md p-4 h-[60px] ${
+                  error ? 'border-red-500' : 'border-gray-200'
+                }`}>
+                  <TextInput
+                    value={question.answer}
+                    onChangeText={(text) => onAnswerChange(question.id, text)}
+                    placeholder="Nhập đáp án tự luận..."
+                    placeholderTextColor="rgba(0, 0, 0, 0.25)"
+                    className="text-base font-normal text-black flex-1"
+                    multiline={false}
+                    textAlignVertical="center"
+                  />
+                </View>
+
+                {error && (
+                  <Text className="text-red-500 text-sm mt-1 ml-1">
+                    {error}
+                  </Text>
+                )}
+              </View>
             </View>
           </View>
-        </View>
-      ))}
+        );
+      })}
     </View>
   );
 }

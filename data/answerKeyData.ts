@@ -26,7 +26,7 @@ export interface EssayQuestion {
 export interface AnswerKeyData {
   examCode: string;
   multipleChoiceQuestions: Question[];
-  trueFalseQuestion: TrueFalseQuestion;
+  trueFalseQuestions: TrueFalseQuestion[]; // Array of TF questions
   essayQuestions: EssayQuestion[];
 }
 
@@ -40,15 +40,17 @@ export const fakeAnswerKeyData: AnswerKeyData = {
     { id: 4, answer: "D" },
     { id: 5, answer: "A" },
   ],
-  trueFalseQuestion: {
-    id: 1,
-    subQuestions: {
-      a: "Đ",
-      b: "S",
-      c: "Đ",
-      d: "S",
-    },
-  },
+  trueFalseQuestions: [
+    {
+      id: 1,
+      subQuestions: {
+        a: "Đ",
+        b: "S",
+        c: "Đ",
+        d: "S",
+      },
+    }
+  ],
   essayQuestions: [
     {
       id: 1,
@@ -78,15 +80,17 @@ export const emptyAnswerKeyData: AnswerKeyData = {
     { id: 4, answer: null },
     { id: 5, answer: null },
   ],
-  trueFalseQuestion: {
-    id: 1,
-    subQuestions: {
-      a: null,
-      b: null,
-      c: null,
-      d: null,
-    },
-  },
+  trueFalseQuestions: [
+    {
+      id: 1,
+      subQuestions: {
+        a: null,
+        b: null,
+        c: null,
+        d: null,
+      },
+    }
+  ],
   essayQuestions: [
     { id: 1, answer: "" },
     { id: 2, answer: "" },

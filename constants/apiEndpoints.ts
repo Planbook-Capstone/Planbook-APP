@@ -26,6 +26,8 @@ export const API_ENDPOINTS = {
   ),
   GRADING_SESSIONS: buildEndpoint(ServicePaths.GRADING_SERVICE, "/grading-sessions"),
   OMR_TEMPLATES: buildEndpoint(ServicePaths.GRADING_SERVICE, "/omr-templates"),
+  ANSWER_SHEET_KEYS: buildEndpoint(ServicePaths.GRADING_SERVICE, "/answer-sheet-keys"),
+  SECTION_CONFIGS: buildEndpoint(ServicePaths.GRADING_SERVICE, "/section-configs"),
   // Thêm các endpoint khác ở đây
   // PRODUCTS: {
   //   GET_ALL: '/product-service/api/products',

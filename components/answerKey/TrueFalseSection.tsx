@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text } from "react-native";
+import { Text, View } from "react-native";
 import TrueFalseItem from "./TrueFalseItem";
 
 type TrueFalseAnswer = "Đ" | "S" | null;
@@ -15,16 +15,19 @@ interface TrueFalseQuestion {
 }
 
 interface TrueFalseSectionProps {
-  question: TrueFalseQuestion;
+  questions: TrueFalseQuestion[]; // Array of questions instead of single question
   onAnswerChange: (
+    questionId: number,
     subQuestion: keyof TrueFalseQuestion["subQuestions"],
     answer: TrueFalseAnswer
   ) => void;
+  error?: string;
 }
 
 export default function TrueFalseSection({
-  question,
+  questions,
   onAnswerChange,
+  error,
 }: TrueFalseSectionProps) {
   return (
     <View className="mb-8">
@@ -32,32 +35,42 @@ export default function TrueFalseSection({
         Phần 2 - Đúng/sai
       </Text>
 
-      <View className="gap-2">
-        <Text className="text-xl font-normal text-black mb-1">Câu 1:</Text>
+      {questions.map((question) => (
+        <View key={question.id} className="mb-6">
+          <Text className="text-xl font-normal text-black mb-2">Câu {question.id}:</Text>
 
-        <TrueFalseItem
-          label="a"
-          selectedAnswer={question.subQuestions.a}
-          onAnswerChange={(answer) => onAnswerChange("a", answer)}
-        />
+          <View className="gap-2">
+            <TrueFalseItem
+              label="a"
+              selectedAnswer={question.subQuestions.a}
+              onAnswerChange={(answer) => onAnswerChange(question.id, "a", answer)}
+            />
+            <TrueFalseItem
+              label="b"
+              selectedAnswer={question.subQuestions.b}
+              onAnswerChange={(answer) => onAnswerChange(question.id, "b", answer)}
+            />
+            <TrueFalseItem
+              label="c"
+              selectedAnswer={question.subQuestions.c}
+              onAnswerChange={(answer) => onAnswerChange(question.id, "c", answer)}
+            />
+            <TrueFalseItem
+              label="d"
+              selectedAnswer={question.subQuestions.d}
+              onAnswerChange={(answer) => onAnswerChange(question.id, "d", answer)}
+            />
+          </View>
+        </View>
+      ))}
 
-        <TrueFalseItem
-          label="b"
-          selectedAnswer={question.subQuestions.b}
-          onAnswerChange={(answer) => onAnswerChange("b", answer)}
-        />
-
-        <TrueFalseItem
-          label="c"
-          selectedAnswer={question.subQuestions.c}
-          onAnswerChange={(answer) => onAnswerChange("c", answer)}
-        />
-
-        <TrueFalseItem
-          label="d"
-          selectedAnswer={question.subQuestions.d}
-          onAnswerChange={(answer) => onAnswerChange("d", answer)}
-        />
+      {/* Error message */}
+      <View className="h-[20px] mt-1">
+        {error && (
+          <Text className="text-red-500 text-sm">
+            {error}
+          </Text>
+        )}
       </View>
     </View>
   );
