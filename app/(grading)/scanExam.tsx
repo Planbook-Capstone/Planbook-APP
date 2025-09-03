@@ -3,8 +3,8 @@ import { useGetGradingSessionById } from "@/services/gradingService";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import * as ImageManipulator from "expo-image-manipulator";
-import { useLocalSearchParams } from "expo-router";
-import React, { useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -13,6 +13,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Image as RNImage,
 } from "react-native";
 import DocumentScanner from "react-native-document-scanner-plugin";
 
@@ -46,12 +47,15 @@ export const uploadAnswerSheetImage = async (
 
     formData.append("correct_answers", correctAnswersString);
 
-    const res = await apiSecondary.post("/mark-correct-answers/", formData, {
+    const res = await apiSecondary.post("/process-image/", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     });
 
+    
+
+    
     console.log("📬 Server response:", res.data);
     return res.data; // Return data instead of showing alert
   } catch (err: any) {
@@ -76,14 +80,26 @@ interface ScanResult {
   status: "processing" | "success" | "error";
 }
 
-export default function ScanExam() {
+function ScanExamContent() {
   const [uri, setUri] = useState<string | null>(null);
   const [scanState, setScanState] = useState<ScanState>("idle");
   const [isProcessing, setIsProcessing] = useState(false);
   const [scanResults, setScanResults] = useState<ScanResult[]>([]);
   const [currentResult, setCurrentResult] = useState<any>(null);
+  const [navigationReady, setNavigationReady] = useState(false);
 
+  const router = useRouter();
   const { id: idGradingSession } = useLocalSearchParams();
+
+  // Navigation context recovery after DocumentScanner
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setNavigationReady(true);
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   const { data: gradingSessionData } = useGetGradingSessionById(
     idGradingSession as string,
     {
@@ -94,22 +110,45 @@ export default function ScanExam() {
   const answerSheetKeys = gradingSessionData?.data?.answer_sheet_keys || [];
   const sessionName = gradingSessionData?.data?.name || "Phiên chấm điểm";
 
+  // Show loading while navigation context is recovering
+  if (!navigationReady) {
+    return (
+      <SafeAreaView className="flex-1 bg-white justify-center items-center">
+        <ActivityIndicator size="large" color="#3b82f6" />
+        <Text className="text-gray-600 text-base mt-4">Đang khởi tạo...</Text>
+      </SafeAreaView>
+    );
+  }
+
   const scan = async () => {
     try {
       setScanState("scanning");
+
+      // DocumentScanner có thể làm gián đoạn navigation context
       const { scannedImages, status } = await DocumentScanner.scanDocument({
         croppedImageQuality: 95,
       });
+
+      // Restore navigation context sau khi DocumentScanner xong
+      setNavigationReady(false);
+      setTimeout(() => {
+        setNavigationReady(true);
+      }, 200);
 
       if (status !== "success" || !scannedImages?.length) {
         setScanState("idle");
         return;
       }
 
-      setUri(scannedImages[0]);
+      setUri(scannedImages[scannedImages.length - 1]);
       setScanState("scanned");
     } catch (e: any) {
       setScanState("error");
+      // Restore navigation context ngay cả khi có lỗi
+      setNavigationReady(false);
+      setTimeout(() => {
+        setNavigationReady(true);
+      }, 200);
       Alert.alert("Scan lỗi", e?.message ?? "Không thể quét.");
     }
   };
@@ -173,12 +212,12 @@ export default function ScanExam() {
   };
   const renderScanButton = () => (
     <View className="flex-1 justify-center items-center px-6 py-8">
-       <View>
-         <Image
+      <View>
+        <Image
           source={require("@/assets/images/icons/scan-active.png")}
           style={{ width: 100, height: 100 }}
         />
-       </View>
+      </View>
       <Text className="text-gray-900 text-3xl font-bold text-center mb-3">
         Quét phiếu trả lời
       </Text>
@@ -219,12 +258,28 @@ export default function ScanExam() {
   const renderImagePreview = () => (
     <View className="flex-1 p-6">
       <View className="relative flex-1 bg-gray-50 border border-gray-200 rounded-2xl overflow-hidden mb-6 shadow-sm">
-        <Image
-          source={{ uri: uri! }}
-          className="flex-1"
-          contentFit="contain"
-          transition={150}
-        />
+        {uri ? (
+          // <Image
+          //   source={{ uri }}
+          //   className="flex-1"
+          //   contentFit="contain"
+          //   transition={150}
+          //   onError={() => {
+          //     Alert.alert("Lỗi", "Không thể hiển thị ảnh đã quét");
+          //   }}
+          // />
+
+          <RNImage
+            source={{ uri }}
+            style={{ width: "100%", height: "100%" }}
+            resizeMode="contain"
+          />
+        ) : (
+          <View className="flex-1 justify-center items-center">
+            <Text className="text-gray-500 text-lg">Không có ảnh</Text>
+          </View>
+        )}
+
         {scanState === "processing" && (
           <View className="absolute inset-0 bg-white/95 justify-center items-center">
             <ActivityIndicator size="large" color="#3b82f6" />
@@ -316,4 +371,66 @@ export default function ScanExam() {
       </ScrollView>
     </SafeAreaView>
   );
+}
+
+// Wrapper với navigation context recovery
+export default function ScanExam() {
+  const [retryCount, setRetryCount] = useState(0);
+  const [hasError, setHasError] = useState(false);
+
+  // Reset error state khi component mount
+  useEffect(() => {
+    setHasError(false);
+    setRetryCount(0);
+  }, []);
+
+  if (hasError && retryCount < 3) {
+    // Auto retry sau 1 giây
+    setTimeout(() => {
+      setRetryCount((prev) => prev + 1);
+      setHasError(false);
+    }, 1000);
+
+    return (
+      <SafeAreaView className="flex-1 bg-white justify-center items-center">
+        <ActivityIndicator size="large" color="#3b82f6" />
+        <Text className="text-gray-600 text-base mt-4">
+          Đang khôi phục... ({retryCount + 1}/3)
+        </Text>
+      </SafeAreaView>
+    );
+  }
+
+  if (hasError && retryCount >= 3) {
+    return (
+      <SafeAreaView className="flex-1 bg-white justify-center items-center">
+        <Text className="text-red-500 text-lg mb-4">Lỗi navigation</Text>
+        <Text className="text-gray-600 text-base text-center px-6 mb-4">
+          Không thể khôi phục navigation context
+        </Text>
+        <TouchableOpacity
+          onPress={() => {
+            setHasError(false);
+            setRetryCount(0);
+          }}
+          className="bg-blue-600 px-6 py-3 rounded-xl"
+        >
+          <Text className="text-white font-semibold">Thử lại</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+    );
+  }
+
+  try {
+    return <ScanExamContent />;
+  } catch (error) {
+    console.log("Navigation context error:", error);
+    setHasError(true);
+    return (
+      <SafeAreaView className="flex-1 bg-white justify-center items-center">
+        <ActivityIndicator size="large" color="#3b82f6" />
+        <Text className="text-gray-600 text-base mt-4">Đang xử lý...</Text>
+      </SafeAreaView>
+    );
+  }
 }

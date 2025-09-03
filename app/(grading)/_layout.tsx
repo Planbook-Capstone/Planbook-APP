@@ -28,12 +28,6 @@ export default function GradingLayout() {
         name="index"
         options={{
           headerShown: false,
-          // title: "Phiên chấm điểm",
-          // headerBackTitle: "Quay lại",
-          // headerStyle: {
-          //   backgroundColor: "#fff", // nền trắng
-          // },
-          // headerTintColor: "#000", // màu chữ + icon
         }}
       />
       <Stack.Screen
