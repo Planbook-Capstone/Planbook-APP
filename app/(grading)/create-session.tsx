@@ -14,7 +14,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import { showMessage } from "react-native-flash-message";
 import {
@@ -224,7 +224,9 @@ const CreateGradingSessionScreen = () => {
       );
 
       // Submit data
-      const response = await createGradingSessionMutation.mutateAsync(validatedData as any);
+      const response = await createGradingSessionMutation.mutateAsync(
+        validatedData as any
+      );
 
       showMessage({
         message: response?.data?.message || "Tạo phiên thành công!",
@@ -233,17 +235,17 @@ const CreateGradingSessionScreen = () => {
       });
       router.back();
     } catch (e: any) {
-       let message = "Đã xảy ra lỗi không xác định";
+      let message = "Đã xảy ra lỗi không xác định";
 
-        // Nếu có response và có data
-        if (e?.response?.data) {
-          const data = e.response.data;
-          if (typeof data === "string") {
-            message = data;
-          } else if (typeof data === "object" && data.message) {
-            message = data.message;
-          }
+      // Nếu có response và có data
+      if (e?.response?.data) {
+        const data = e.response.data;
+        if (typeof data === "string") {
+          message = data;
+        } else if (typeof data === "object" && data.message) {
+          message = data.message;
         }
+      }
       showMessage({
         message: message,
         type: "danger",
@@ -262,14 +264,18 @@ const CreateGradingSessionScreen = () => {
         <ScrollView className="flex-1 px-5">
           {/* Section 1: Thông tin chung */}
           <View className="mb-4">
-            <Text className="text-base font-bold mb-3">1. Thông tin chung</Text>
-            <View className="bg-white rounded-lg p-4">
-              <Text className="mb-1 text-sm text-gray-800">Tên bài</Text>
+            <Text className="text-xl font-calsans mb-3">
+              1. Thông tin chung
+            </Text>
+            <View>
+              <Text className="mb-1 text-lg font-questrial text-gray-800">
+                Tên bài
+              </Text>
               <TextInput
                 placeholder="Nhập tên bài"
                 value={formData.name}
                 onChangeText={(text) => updateFormData("name", text)}
-                className={`border rounded-md px-4 py-3 text-sm text-gray-900 ${
+                className={`border rounded-md py-4 pl-2 font-questrial  text-gray-900 ${
                   getFieldError("name") ? "border-red-500" : "border-gray-200"
                 }`}
               />
@@ -280,10 +286,12 @@ const CreateGradingSessionScreen = () => {
               )}
               {!getFieldError("name") && <View className="mb-4" />}
 
-              <Text className="mb-1 text-sm text-gray-800">Mẫu phiếu OMR</Text>
+              <Text className="mb-1 text-lg font-questrial text-gray-800">
+                Mẫu phiếu OMR
+              </Text>
               <TouchableOpacity
                 onPress={() => setShowTemplateModal(true)}
-                className={`border rounded-md px-4 py-3 flex-row justify-between items-center ${
+                className={`border rounded-md py-4 pl-2 font-questrial flex-row justify-between items-center ${
                   getFieldError("omr_template_id")
                     ? "border-red-500"
                     : "border-gray-200"
@@ -317,24 +325,24 @@ const CreateGradingSessionScreen = () => {
             pointerEvents={isStructureDisabled ? "none" : "auto"}
           >
             <View className="flex-row items-center justify-between mb-3">
-              <Text className="text-base font-bold">2. Cấu trúc đề thi</Text>
+              <Text className="text-xl font-calsans">2. Cấu trúc đề thi</Text>
               <TouchableOpacity className="flex-row items-center px-4 py-2 bg-gradient-to-r from-indigo-600 to-cyan-400 rounded-full">
-                <Text className="text-white text-sm font-medium">
+                <Text className="text-white text-sm font-medium font-questrial">
                   Tự phân bổ
                 </Text>
               </TouchableOpacity>
             </View>
 
             {/* Phần 1 - Trắc nghiệm */}
-            <View className="bg-white rounded-lg p-4 mb-3">
-              <TouchableOpacity className="flex-row justify-between items-center mb-2 bg-gray-900 px-4 py-2 rounded-full">
-                <Text className="text-white text-sm font-semibold">
+            <View className="bg-white rounded-lg mb-3">
+              <TouchableOpacity className="flex-row justify-between items-center mb-2 bg-neutral-800 px-4 py-2 rounded-full">
+                <Text className="text-white text-lg font-calsans">
                   Phần 1 - Trắc nghiệm
                 </Text>
                 {/* <Text className="text-white">⌄</Text> */}
               </TouchableOpacity>
 
-              <Text className="mb-1 text-sm text-gray-800">Số câu</Text>
+              <Text className="mb-1 font-questrial text-lg">Số câu</Text>
               <TextInput
                 placeholder="40"
                 placeholderTextColor="#9ca3af"
@@ -358,7 +366,7 @@ const CreateGradingSessionScreen = () => {
                 <View className="mb-4" />
               )}
 
-              <Text className="mb-1 text-sm text-gray-800">Điểm / câu</Text>
+              <Text className="mb-1 font-questrial text-lg">Điểm / câu</Text>
               <TextInput
                 placeholder="0.25"
                 placeholderTextColor="#9ca3af"
@@ -387,15 +395,17 @@ const CreateGradingSessionScreen = () => {
             </View>
 
             {/* Phần 2 - Đúng/sai nhiều ý */}
-            <View className="bg-white rounded-lg px-4 mb-3">
-              <TouchableOpacity className="flex-row justify-between items-center mb-2 bg-gray-900 px-4 py-2 rounded-full">
-                <Text className="text-white text-sm font-semibold">
+            <View className="bg-white rounded-lg ">
+              <TouchableOpacity className="flex-row justify-between items-center mb-2 bg-neutral-800 px-4 py-2 rounded-full">
+                <Text className="text-white text-lg  font-calsans">
                   Phần 2 - Đúng/sai
                 </Text>
                 {/* <Text className="text-white">⌄</Text> */}
               </TouchableOpacity>
 
-              <Text className="mb-1 text-sm text-gray-800">Số câu</Text>
+              <Text className="mb-1 text-lg text-gray-800 font-questrial">
+                Số câu
+              </Text>
               <TextInput
                 placeholder="8"
                 placeholderTextColor="#9ca3af"
@@ -404,7 +414,7 @@ const CreateGradingSessionScreen = () => {
                 onChangeText={(text) =>
                   updateSectionConfig(1, "questionCount", parseInt(text) || 0)
                 }
-                className={`border rounded-md px-4 py-3 text-sm text-gray-900 ${
+                className={`border rounded-md px-4 py-3  text-gray-900 ${
                   getFieldError("section_config_json.1.questionCount")
                     ? "border-red-500"
                     : "border-gray-200"
@@ -419,7 +429,7 @@ const CreateGradingSessionScreen = () => {
                 <View className="mb-4" />
               )}
 
-              <Text className="text-sm font-semibold text-gray-800 mb-2">
+              <Text className="text-lg font-calsans text-gray-800 mb-2">
                 Số điểm 1 câu:
               </Text>
 
@@ -435,7 +445,7 @@ const CreateGradingSessionScreen = () => {
 
                   return (
                     <View key={index} className="mb-3">
-                      <Text className="mb-1 text-sm text-gray-800">
+                      <Text className="mb-1 text-lg font-questrial text-gray-800">
                         - {label}
                       </Text>
                       <TextInput
@@ -449,7 +459,7 @@ const CreateGradingSessionScreen = () => {
                             updateTrueFalseRule(ruleKey, sanitizedText);
                           }
                         }}
-                        className={`border rounded-md px-4 py-3 text-sm text-gray-900 ${
+                        className={`border ml-5 rounded-md px-4 py-3 text-sm text-gray-900 ${
                           getFieldError(`section_config_json.1.rule.${ruleKey}`)
                             ? "border-red-500"
                             : "border-gray-200"
@@ -471,15 +481,15 @@ const CreateGradingSessionScreen = () => {
             </View>
 
             {/* Phần 3 - Tự luận */}
-            <View className="bg-white rounded-lg px-4">
-              <TouchableOpacity className="flex-row justify-between items-center mb-2 bg-gray-900 px-4 py-2 rounded-full">
-                <Text className="text-white text-sm font-semibold">
+            <View className="bg-white rounded-lg ">
+              <TouchableOpacity className="flex-row justify-between items-center mb-2 bg-neutral-800 px-4 py-2 rounded-full">
+                <Text className="text-white text-lg font-calsans">
                   Phần 3 - Tự luận
                 </Text>
                 {/* <Text className="text-white">⌄</Text> */}
               </TouchableOpacity>
 
-              <Text className="mb-1 text-sm text-gray-800">Số câu</Text>
+              <Text className="mb-1 text-lg text-gray-800">Số câu</Text>
               <TextInput
                 placeholder="6"
                 placeholderTextColor="#9ca3af"
@@ -503,7 +513,9 @@ const CreateGradingSessionScreen = () => {
                 <View className="mb-4" />
               )}
 
-              <Text className="mb-1 text-sm text-gray-800">Điểm / câu</Text>
+              <Text className="mb-1 text-lg font-questrial text-gray-800">
+                Điểm / câu
+              </Text>
               <TextInput
                 placeholder="0.5"
                 placeholderTextColor="#9ca3af"
@@ -533,14 +545,14 @@ const CreateGradingSessionScreen = () => {
           </View>
 
           {/* Submit Button */}
-          <View className="px-4 py-6">
+          <View className=" py-6">
             <TouchableOpacity
               onPress={handleSubmit}
               disabled={createGradingSessionMutation.isPending}
-              className={`rounded-lg py-4 flex-row justify-center items-center ${
+              className={`rounded-full py-4 flex-row justify-center items-center ${
                 createGradingSessionMutation.isPending
                   ? "bg-gray-400"
-                  : "bg-blue-600"
+                  : "bg-cyan-400"
               }`}
             >
               {createGradingSessionMutation.isPending ? (
@@ -555,7 +567,7 @@ const CreateGradingSessionScreen = () => {
                   </Text>
                 </>
               ) : (
-                <Text className="text-white font-semibold text-base">
+                <Text className="text-white font-calsans text-base">
                   Tạo phiên chấm điểm
                 </Text>
               )}
