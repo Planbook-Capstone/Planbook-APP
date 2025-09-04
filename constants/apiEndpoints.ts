@@ -39,6 +39,10 @@ export const API_ENDPOINTS = {
     ServicePaths.GRADING_SERVICE,
     "/section-configs"
   ),
+  STUDENT_SUBMISSIONS: buildEndpoint(
+    ServicePaths.GRADING_SERVICE,
+    "/student-submissions"
+  ),
   // Thêm các endpoint khác ở đây
   // PRODUCTS: {
   //   GET_ALL: '/product-service/api/products',

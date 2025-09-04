@@ -1,4 +1,5 @@
 export const TOOL_ACTION_LABELS = {
+  EXAM_GRADING: "Chấm phiếu trắc nghiệm",
   LESSON_PLAN: "Tạo giáo án",
   EXAM_CREATOR: "Tạo đề kiểm tra với AI",
   SLIDE_GENERATOR: "Tạo slide bài giảng",
