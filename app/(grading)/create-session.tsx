@@ -7,6 +7,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
+  Image,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -297,7 +298,7 @@ const CreateGradingSessionScreen = () => {
                     : "border-gray-200"
                 }`}
               >
-                <Text className="text-sm text-gray-700">
+                <Text className="text-sm font-questrial text-gray-700">
                   {selectedTemplate
                     ? selectedTemplate.name
                     : "Vui lòng chọn mẫu phiếu OMR"}
@@ -595,13 +596,13 @@ const CreateGradingSessionScreen = () => {
             style={{ paddingBottom: insets.bottom }}
           >
             <View className="p-4 border-b border-gray-200 flex-row justify-between items-center">
-              <Text className="text-lg font-semibold">Chọn mẫu phiếu OMR</Text>
+              <Text className="text-lg font-calsans">Chọn mẫu phiếu OMR</Text>
               <TouchableOpacity onPress={() => setShowTemplateModal(false)}>
                 <Text className="text-blue-600 font-medium">Xong</Text>
               </TouchableOpacity>
             </View>
 
-            <ScrollView>
+            <ScrollView className="h-4/5">
               {isLoadingTemplates ? (
                 <View className="p-8 justify-center items-center">
                   <ActivityIndicator size="large" color="#3B82F6" />
@@ -610,35 +611,50 @@ const CreateGradingSessionScreen = () => {
               ) : (
                 <View className="py-2">
                   {omrTemplates?.data?.content?.map((template: any) => (
-                    <TouchableOpacity
-                      key={template.id}
-                      onPress={() => handleSelectTemplate(template)}
-                      className={`p-4 mx-4 my-1 rounded-lg flex-row items-center justify-between ${
-                        selectedTemplate?.id === template.id
-                          ? "bg-blue-50 border border-blue-200"
-                          : "bg-gray-50 border border-transparent"
-                      }`}
-                    >
-                      <View>
-                        <Text
-                          className={`font-semibold ${
-                            selectedTemplate?.id === template.id
-                              ? "text-blue-700"
-                              : "text-gray-900"
-                          }`}
-                        >
-                          {template.name}
-                        </Text>
-                        {template.description && (
-                          <Text className="text-sm text-gray-500 mt-1">
-                            {template.description}
+                    <View>
+                      <TouchableOpacity
+                        key={template.id}
+                        onPress={() => handleSelectTemplate(template)}
+                        className={`p-4 mx-4 my-1 rounded-lg flex-row items-center justify-between ${
+                          selectedTemplate?.id === template.id
+                            ? "bg-blue-50 border border-blue-200"
+                            : "bg-gray-50 border border-transparent"
+                        }`}
+                      >
+                        <View className="p-3">
+                          <Text
+                            className={`font-semibold ${
+                              selectedTemplate?.id === template.id
+                                ? "text-blue-700"
+                                : "text-gray-900"
+                            }`}
+                          >
+                            {template.name}
                           </Text>
-                        )}
-                      </View>
+                          {template.description && (
+                            <Text className="text-sm text-gray-500 mt-1">
+                              {template.description}
+                            </Text>
+                          )}
+                          <View className="w-80 h-80">
+                            <Image
+                              source={{
+                                uri:
+                                  template?.sample_image_url ||
+                                  "https://i.pravatar.cc/150",
+                              }}
+                              resizeMode="contain"
+                              className="w-full h-full object-cover mt-5 " // Đổi border thành màu trắng cho nổi bật
+                            />
+                          </View>
+                        </View>
+                      </TouchableOpacity>
                       {selectedTemplate?.id === template.id && (
-                        <Text className="text-blue-600 text-2xl">✓</Text>
+                        <Text className="absolute right-5 top-1 text-blue-600 text-2xl">
+                          ✓
+                        </Text>
                       )}
-                    </TouchableOpacity>
+                    </View>
                   ))}
                 </View>
               )}

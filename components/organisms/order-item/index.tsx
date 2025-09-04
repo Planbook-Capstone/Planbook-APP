@@ -16,19 +16,19 @@ const OrderItem = ({ item, onPress }: OrderItemProps) => {
     switch (item.status) {
       case "PAID":
         return {
-          icon: <SuccessIcon />,
+          icon: <SuccessIcon width={50} height={50} />,
           color: "text-green-500",
           bgColor: "bg-green-100",
         };
       case "PENDING":
         return {
-          icon: "clock-outline" as const,
+          icon: <PendingIcon width={50} height={50} />,
           color: "text-yellow-500",
           bgColor: "bg-yellow-100",
         };
       case "CANCELLED":
         return {
-          icon: "close-circle-outline" as const,
+          icon: <CancelIcon width={50} height={50} />,
           color: "text-red-500",
           bgColor: "bg-red-100",
         };
@@ -91,9 +91,7 @@ const OrderItem = ({ item, onPress }: OrderItemProps) => {
       onPress={onPress}
       className="flex-row items-center p-4 bg-white border-b border-gray-100 active:bg-gray-50"
     >
-      <View
-        className={`w-12 h-12 rounded-full items-center justify-center ${styleConfig.bgColor}`}
-      >
+      <View className={`w-12 h-12 rounded-full items-center justify-center `}>
         {/* <MaterialCommunityIcons
           name=
           size={28}

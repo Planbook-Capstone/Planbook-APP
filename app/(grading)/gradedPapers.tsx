@@ -1,109 +1,40 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   View,
   Text,
   TouchableOpacity,
-  ScrollView,
   SafeAreaView,
   FlatList,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useGetStudentSubmissionId } from "@/services/studentSubmissionService";
+import ExamIcon from "@/assets/images/icons/exam.svg";
+import { formatVietnameseDateTime } from "@/utils/formatDate";
 interface GradedPaper {
-  id: string;
-  studentId: string;
-  studentName: string;
+  id: number;
   score: number;
-  maxScore: number;
-  gradedAt: string;
-  status: "completed" | "pending" | "error";
+  grading_session_id: number;
+  answer_sheet_key_id: number;
+  student_code: string;
+  exam_code: string;
+  image_base64: string;
+  total_correct: number;
+  student_answer_json: any[];
+  created_at: string;
+  updated_at: string;
 }
-
-const mockGradedPapers: GradedPaper[] = [
-  {
-    id: "1",
-    studentId: "SV001",
-    studentName: "Nguyễn Văn An",
-    score: 8.5,
-    maxScore: 10,
-    gradedAt: "30-08-2025 14:30",
-    status: "completed",
-  },
-  {
-    id: "2",
-    studentId: "SV002",
-    studentName: "Trần Thị Bảo",
-    score: 7.2,
-    maxScore: 10,
-    gradedAt: "30-08-2025 14:25",
-    status: "completed",
-  },
-  {
-    id: "3",
-    studentId: "SV003",
-    studentName: "Lê Hoàng Cường",
-    score: 9.0,
-    maxScore: 10,
-    gradedAt: "30-08-2025 14:20",
-    status: "completed",
-  },
-  {
-    id: "4",
-    studentId: "SV004",
-    studentName: "Phạm Thị Dung",
-    score: 0,
-    maxScore: 10,
-    gradedAt: "30-08-2025 14:15",
-    status: "error",
-  },
-  {
-    id: "5",
-    studentId: "SV005",
-    studentName: "Võ Minh Dần",
-    score: 6.8,
-    maxScore: 10,
-    gradedAt: "30-08-2025 14:10",
-    status: "completed",
-  },
-];
 
 export default function GradedPapersScreen() {
   const router = useRouter();
-  const [selectedFilter, setSelectedFilter] = useState<
-    "all" | "completed" | "error"
-  >("all");
-
-  const filteredPapers = mockGradedPapers.filter((paper) => {
-    if (selectedFilter === "all") return true;
-    return paper.status === selectedFilter;
-  });
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "#10B981";
-      case "error":
-        return "#EF4444";
-      case "pending":
-        return "#F59E0B";
-      default:
-        return "#6B7280";
+  const { id: idGradingSesstion } = useLocalSearchParams();
+  const { data: studentSubmissionData } = useGetStudentSubmissionId(
+    [idGradingSesstion],
+    { retry: 1, staleTime: 0 },
+    {
+      gradingSessionId: idGradingSesstion,
     }
-  };
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "Hoàn thành";
-      case "error":
-        return "Lỗi";
-      case "pending":
-        return "Đang xử lý";
-      default:
-        return "Không xác định";
-    }
-  };
+  );
 
   const getScoreColor = (score: number, maxScore: number) => {
     const percentage = (score / maxScore) * 100;
@@ -124,49 +55,29 @@ export default function GradedPapersScreen() {
       }}
       onPress={() => {
         // Navigate to detailed view
-        console.log("View details for paper:", item.id);
+        router.push({
+          pathname: "/(grading)/paperDetail",
+          params: { id: item.id },
+        });
       }}
     >
       <View className="flex-row justify-between items-start mb-2">
         <View className="flex-1">
-          <Text
-            className="text-lg font-semibold text-gray-900 mb-1"
-            style={{ fontFamily: "CalSans" }}
-          >
-            {item.studentName}
-          </Text>
-          <Text
-            className="text-sm text-gray-600"
-            style={{ fontFamily: "Questrial" }}
-          >
-            {item.studentId}
+          <Text className="text-sm text-gray-600 font-questrial ">
+            Mã học sinh{" "}
+            <Text className="font-calsans text-xl">{item?.student_code}</Text>
           </Text>
         </View>
         <View className="items-end">
           <Text
             className="text-2xl font-bold mb-1"
             style={{
-              color: getScoreColor(item.score, item.maxScore),
+              color: getScoreColor(item.score, 10),
               fontFamily: "CalSans",
             }}
           >
-            {item.score}/{item.maxScore}
+            {item.score}
           </Text>
-          <View className="flex-row items-center">
-            <View
-              className="w-2 h-2 rounded-full mr-2"
-              style={{ backgroundColor: getStatusColor(item.status) }}
-            />
-            <Text
-              className="text-xs"
-              style={{
-                color: getStatusColor(item.status),
-                fontFamily: "Questrial",
-              }}
-            >
-              {getStatusText(item.status)}
-            </Text>
-          </View>
         </View>
       </View>
       <View className="flex-row items-center justify-between">
@@ -174,7 +85,7 @@ export default function GradedPapersScreen() {
           className="text-sm text-gray-500"
           style={{ fontFamily: "Questrial" }}
         >
-          Chấm lúc: {item.gradedAt}
+          Chấm lúc: {formatVietnameseDateTime(item?.created_at)}
         </Text>
         <Ionicons name="chevron-forward" size={16} color="#9CA3AF" />
       </View>
@@ -183,45 +94,17 @@ export default function GradedPapersScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      {/* Header */}
-      {/* <View className="flex-row items-center px-6 py-4 border-b border-gray-100">
-        <TouchableOpacity
-          onPress={() => router.back()}
-          className="flex-row items-center"
-        >
-          <Ionicons name="arrow-back" size={24} color="#292D32" />
-          <Text
-            className="text-xl font-normal text-black ml-2"
-            style={{ fontFamily: "Questrial" }}
-          >
-            Quay lại
-          </Text>
-        </TouchableOpacity>
-        <Text
-          className="text-2xl font-bold text-black ml-4"
-          style={{ fontFamily: "CalSans" }}
-        >
-          Bài đã chấm
-        </Text>
-      </View> */}
-
       {/* Summary Stats */}
       <View className="flex-row justify-around py-4 bg-white border-b border-gray-100">
         <View className="items-center">
-          <Text
-            className="text-2xl font-bold text-blue-600"
-            style={{ fontFamily: "CalSans" }}
-          >
-            {filteredPapers.length}
+          <Text className="text-3xl font-bold text-blue-600 font-calsans">
+            {studentSubmissionData?.data?.length}
           </Text>
-          <Text
-            className="text-sm text-gray-600"
-            style={{ fontFamily: "Questrial" }}
-          >
+          <Text className="text-xl text-gray-600 font-questrial">
             Tổng số bài
           </Text>
         </View>
-        <View className="items-center">
+        {/* <View className="items-center">
           <Text
             className="text-2xl font-bold text-green-600"
             style={{ fontFamily: "CalSans" }}
@@ -248,11 +131,11 @@ export default function GradedPapersScreen() {
           >
             Lỗi
           </Text>
-        </View>
+        </View> */}
       </View>
 
       {/* Filter Tabs */}
-      <View className="flex-row px-6 py-3 gap-2">
+      {/* <View className="flex-row px-6 py-3 gap-2">
         {[
           { key: "all", label: "Tất cả" },
           { key: "completed", label: "Hoàn thành" },
@@ -275,22 +158,19 @@ export default function GradedPapersScreen() {
             </Text>
           </TouchableOpacity>
         ))}
-      </View>
+      </View> */}
 
       {/* Papers List */}
       <FlatList
-        data={filteredPapers}
+        data={studentSubmissionData?.data}
         renderItem={renderPaperItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={{ padding: 24, paddingTop: 8 }}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <View className="items-center justify-center py-12">
-            <Ionicons name="document-text-outline" size={64} color="#D1D5DB" />
-            <Text
-              className="text-lg text-gray-500 mt-4"
-              style={{ fontFamily: "Questrial" }}
-            >
+            <ExamIcon width={80} height={80} />
+            <Text className="text-lg font-questrial mt-4">
               Không có bài đã chấm
             </Text>
           </View>
