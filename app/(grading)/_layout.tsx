@@ -120,6 +120,17 @@ export default function GradingLayout() {
           headerTintColor: "#000",
         }}
       />
+      <Stack.Screen
+        name="paperDetail"
+        options={{
+          title: "Chi tiết bài làm",
+          headerBackTitle: "Quay lại",
+          headerStyle: {
+            backgroundColor: "#fff",
+          },
+          headerTintColor: "#000",
+        }}
+      />
     </Stack>
   );
 }

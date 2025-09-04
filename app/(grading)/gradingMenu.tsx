@@ -32,7 +32,7 @@ export default function GradingMenuScreen() {
     {
       icon: <ExamIcon />,
       title: "Bài đã chấm",
-      onPress: () => router.push("/gradedPapers"),
+      onPress: () => router.push(`/gradedPapers?id=${idGradingSesstion}`),
     },
     {
       icon: <LayerIcon />,

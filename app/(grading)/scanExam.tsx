@@ -108,7 +108,7 @@ function ScanExamContent() {
     return () => clearTimeout(timer);
   }, []);
 
-  const { data: academicYear } = useAcademicYearActiceService();  
+  const { data: academicYear } = useAcademicYearActiceService();
   const createSubmission = useCreateStudentSubmission(); // gọi hook
   const { data: gradingSessionData } = useGetGradingSessionById(
     idGradingSession as string,
@@ -179,9 +179,7 @@ function ScanExamContent() {
       // await MediaLibrary.saveToLibraryAsync(optimized.uri);
 
       // Gọi API chấm điểm
-      const result = await uploadAnswerSheetImage(
-        optimized.uri
-      );
+      const result = await uploadAnswerSheetImage(optimized.uri);
 
       // Tạo scan result mới
       const newScanResult: ScanResult = {
@@ -200,14 +198,7 @@ function ScanExamContent() {
 
       // Reset để quét tiếp
       setUri(null);
-
-      Alert.alert(
-        "Chấm điểm thành công!",
-        `Điểm: ${result.score || 0}/${
-          result.total_questions || 0
-        }\nBạn có thể quét phiếu tiếp theo.`,
-        [{ text: "OK", onPress: () => setScanState("idle") }]
-      );
+      setScanState("idle");
     } catch (error: any) {
       setScanState("error");
       Alert.alert("Lỗi", error?.message || "Không thể xử lý ảnh");
@@ -239,9 +230,7 @@ function ScanExamContent() {
   };
 
   // === Gửi API ===
-  const uploadAnswerSheetImage = async (
-    imageUri: string
-  ) => {
+  const uploadAnswerSheetImage = async (imageUri: string) => {
     try {
       const gradingSessionDataString = JSON.stringify(gradingSessionData.data);
 
@@ -273,7 +262,7 @@ function ScanExamContent() {
       //   calculateTotalPoints(gradingSessionData.sectionConfigJson)
       // );
       // console.log("Total points: ",calculateTotalPoints();
-      console.log("📬 academicYearId:",  academicYear.data.id);
+      console.log("📬 academicYearId:", academicYear.data.id);
       console.log("📬 student_code:", res.data.student_code);
       console.log("📬 exam_code:", res.data.exam_code);
       console.log("📬 image_base64:", res.data.supabase_url);
@@ -292,7 +281,7 @@ function ScanExamContent() {
         image_base64: res.data.supabase_url,
         total_correct: calculateTotalCorrect(res.data.scores),
         score: res.data.scores.total_score,
-        academicYearId:  academicYear.data.id,
+        academicYearId: academicYear.data.id,
         student_answer_json: res.data.student_answer_json,
       };
       createSubmission.mutate(payload, {
