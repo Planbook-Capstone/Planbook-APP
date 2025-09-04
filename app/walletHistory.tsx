@@ -448,8 +448,8 @@ const WalletHistoryScreen = () => {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
-      <View className="flex-row items-center bg-gray-50">
+    <SafeAreaView className="flex-1 bg-white">
+      <View className="flex-row items-center ">
         <View className="flex-1">
           <FilterBar
             selectedValue={selectedType}
@@ -458,7 +458,14 @@ const WalletHistoryScreen = () => {
         </View>
         <TouchableOpacity
           onPress={() => setAdvancedFilterVisible(true)}
-          className="p-2 mr-2 bg-white rounded-full"
+          className="p-2 mr-2 bg-white rounded-full shadow-md"
+          style={{
+            elevation: 6, // Android
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 3 },
+            shadowOpacity: 0.3,
+            shadowRadius: 0.5,
+          }}
         >
           <MaterialCommunityIcons
             name="tune-variant"
