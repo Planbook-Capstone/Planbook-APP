@@ -7,11 +7,12 @@ import ScanIcon from "@/assets/images/icons/scan.svg";
 import LayerIcon from "@/assets/images/icons/layer.svg";
 import InfoIcon from "@/assets/images/icons/info.svg";
 import SendIcon from "@/assets/images/icons/send.svg";
+import { useGetGradingSessionById } from "@/services/gradingService";
 
 export default function GradingMenuScreen() {
   const router = useRouter();
   const { id: idGradingSesstion } = useLocalSearchParams();
-
+  const { data } = useGetGradingSessionById(idGradingSesstion as string);
   const menuItems = [
     {
       icon: <KeyIcon />,
@@ -57,18 +58,12 @@ export default function GradingMenuScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Title Section */}
-        {/* <View className="items-center gap-3 px-6 py-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100">
-          <Text
-            className="text-gray-900 text-center font-bold"
-            style={{
-              fontFamily: "CalSans",
-              fontSize: 28,
-              lineHeight: 34,
-            }}
-          >
-            Đợt chấm
+        <View className="items-center gap-3 px-6 py-6 ">
+          <Text className="text-gray-900 text-center font-questrial text-2xl">
+            Bài kiểm tra
+            <Text className="font-calsans">{" " + data?.data?.name}</Text>
           </Text>
-        </View> */}
+        </View>
 
         {/* Menu Items */}
         <View className="gap-4 items-center">

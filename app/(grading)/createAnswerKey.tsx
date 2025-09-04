@@ -1,5 +1,11 @@
-import { answerKeyFormSchema, answerSheetKeySchema } from "@/schemas/answerSheetKeySchema";
-import { useCreateAnswerSheetKey, useUpdateAnswerSheetKey } from "@/services/answerSheetKeyService";
+import {
+  answerKeyFormSchema,
+  answerSheetKeySchema,
+} from "@/schemas/answerSheetKeySchema";
+import {
+  useCreateAnswerSheetKey,
+  useUpdateAnswerSheetKey,
+} from "@/services/answerSheetKeyService";
 import { useGetGradingSessionById } from "@/services/gradingService";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -11,10 +17,10 @@ import {
   ScrollView,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import { showMessage } from "react-native-flash-message";
-
+import KeyIcon from "@/assets/images/icons/key.svg";
 // Components
 import EssaySection from "../../components/answerKey/EssaySection";
 import ExamInfoSection from "../../components/answerKey/ExamInfoSection";
@@ -27,7 +33,7 @@ import {
   fakeAnswerKeyData,
   type AnswerKeyData,
   type MultipleChoiceAnswer,
-  type TrueFalseAnswer
+  type TrueFalseAnswer,
 } from "../../data/answerKeyData";
 
 export default function CreateAnswerKeyScreen() {
@@ -50,7 +56,7 @@ export default function CreateAnswerKeyScreen() {
     essayCount: examData.essayQuestions.length,
     mcQuestions: examData.multipleChoiceQuestions,
     tfQuestions: examData.trueFalseQuestions,
-    essayQuestions: examData.essayQuestions
+    essayQuestions: examData.essayQuestions,
   });
 
   // Hook để tạo answer sheet key
@@ -60,13 +66,15 @@ export default function CreateAnswerKeyScreen() {
   const updateAnswerSheetKeyMutation = useUpdateAnswerSheetKey();
 
   // Hook để lấy grading session config
-  const { data: gradingSessionData, isLoading: isLoadingSession } = useGetGradingSessionById(
-    idGradingSesstion as string,
-    { enabled: !!idGradingSesstion }
-  );
+  const { data: gradingSessionData, isLoading: isLoadingSession } =
+    useGetGradingSessionById(idGradingSesstion as string, {
+      enabled: !!idGradingSesstion,
+    });
 
   // Validation errors state
-  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [validationErrors, setValidationErrors] = useState<
+    Record<string, string>
+  >({});
 
   // Loading state for save operation
   const [isSaving, setIsSaving] = useState(false);
@@ -98,7 +106,10 @@ export default function CreateAnswerKeyScreen() {
   useEffect(() => {
     if (gradingSessionData?.data) {
       const data = gradingSessionData.data;
-      console.log("📋 Full Grading Session Data:", JSON.stringify(data, null, 2));
+      console.log(
+        "📋 Full Grading Session Data:",
+        JSON.stringify(data, null, 2)
+      );
 
       // Check for section config in different places
       console.log("🔍 Looking for section config in:");
@@ -109,9 +120,14 @@ export default function CreateAnswerKeyScreen() {
       // Case 1: Edit existing answer key (có examCode từ navigation)
       if (examCode && data.answer_sheet_keys) {
         console.log("🔍 Looking for examCode:", examCode);
-        const existingAnswerKey = data.answer_sheet_keys.find((key: any) => key.code === examCode);
+        const existingAnswerKey = data.answer_sheet_keys.find(
+          (key: any) => key.code === examCode
+        );
         if (existingAnswerKey) {
-          console.log("✏️ Found existing answer key, loading for edit:", existingAnswerKey.code);
+          console.log(
+            "✏️ Found existing answer key, loading for edit:",
+            existingAnswerKey.code
+          );
           loadExistingAnswerKey(existingAnswerKey);
           return;
         } else {
@@ -123,7 +139,10 @@ export default function CreateAnswerKeyScreen() {
       console.log("🔍 Checking for section config...");
       console.log("- data.sectionConfigJson:", !!data.sectionConfigJson);
       console.log("- data.section_config_json:", !!data.section_config_json);
-      console.log("- data.answer_sheet_keys length:", data.answer_sheet_keys?.length || 0);
+      console.log(
+        "- data.answer_sheet_keys length:",
+        data.answer_sheet_keys?.length || 0
+      );
 
       if (data.sectionConfigJson) {
         console.log("🎯 Found sectionConfigJson, generating from config");
@@ -165,20 +184,26 @@ export default function CreateAnswerKeyScreen() {
     console.log("📊 Section Config for loading:", sectionConfig);
 
     // Generate full structure based on config, then fill existing answers
-    const mcConfig = sectionConfig.find((section: any) => section.sectionType === "MULTIPLE_CHOICE");
+    const mcConfig = sectionConfig.find(
+      (section: any) => section.sectionType === "MULTIPLE_CHOICE"
+    );
     const mcCount = mcConfig ? mcConfig.questionCount : 5;
 
     // Create all MC questions first (empty)
     const multipleChoiceQuestions = Array.from({ length: mcCount }, (_, i) => ({
       id: i + 1,
-      answer: null as any
+      answer: null as any,
     }));
 
     // Fill existing MC answers
-    const mcSection = answerJson.find((section: any) => section.sectionType === "MULTIPLE_CHOICE");
+    const mcSection = answerJson.find(
+      (section: any) => section.sectionType === "MULTIPLE_CHOICE"
+    );
     if (mcSection) {
       mcSection.questions.forEach((q: any) => {
-        const questionIndex = multipleChoiceQuestions.findIndex(mq => mq.id === q.questionNumber);
+        const questionIndex = multipleChoiceQuestions.findIndex(
+          (mq) => mq.id === q.questionNumber
+        );
         if (questionIndex !== -1) {
           multipleChoiceQuestions[questionIndex].answer = q.answer;
         }
@@ -187,7 +212,9 @@ export default function CreateAnswerKeyScreen() {
     console.log("📝 Loaded MC Questions with config:", multipleChoiceQuestions);
 
     // Generate TF questions based on config
-    const tfConfig = sectionConfig.find((section: any) => section.sectionType === "TRUE_FALSE");
+    const tfConfig = sectionConfig.find(
+      (section: any) => section.sectionType === "TRUE_FALSE"
+    );
     const tfCount = tfConfig ? tfConfig.questionCount : 1;
 
     // Create all TF questions first (empty)
@@ -198,14 +225,18 @@ export default function CreateAnswerKeyScreen() {
         b: null as any,
         c: null as any,
         d: null as any,
-      }
+      },
     }));
 
     // Fill existing TF answers
-    const tfSection = answerJson.find((section: any) => section.sectionType === "TRUE_FALSE");
+    const tfSection = answerJson.find(
+      (section: any) => section.sectionType === "TRUE_FALSE"
+    );
     if (tfSection) {
       tfSection.questions.forEach((q: any) => {
-        const questionIndex = trueFalseQuestions.findIndex(tq => tq.id === q.questionNumber);
+        const questionIndex = trueFalseQuestions.findIndex(
+          (tq) => tq.id === q.questionNumber
+        );
         if (questionIndex !== -1) {
           trueFalseQuestions[questionIndex].subQuestions = q.answer;
         }
@@ -214,22 +245,27 @@ export default function CreateAnswerKeyScreen() {
     console.log("📝 Loaded TF Questions with config:", trueFalseQuestions);
 
     // Generate Essay questions based on config
-    const essayConfig = sectionConfig.find((section: any) =>
-      section.sectionType === "ESSAY" || section.sectionType === "ESSAY_CODE"
+    const essayConfig = sectionConfig.find(
+      (section: any) =>
+        section.sectionType === "ESSAY" || section.sectionType === "ESSAY_CODE"
     );
     const essayCount = essayConfig ? essayConfig.questionCount : 3;
 
     // Create all Essay questions first (empty)
     const essayQuestions = Array.from({ length: essayCount }, (_, i) => ({
       id: i + 1,
-      answer: ""
+      answer: "",
     }));
 
     // Fill existing Essay answers
-    const essaySection = answerJson.find((section: any) => section.sectionType === "ESSAY_CODE");
+    const essaySection = answerJson.find(
+      (section: any) => section.sectionType === "ESSAY_CODE"
+    );
     if (essaySection) {
       essaySection.questions.forEach((q: any) => {
-        const questionIndex = essayQuestions.findIndex(eq => eq.id === q.questionNumber);
+        const questionIndex = essayQuestions.findIndex(
+          (eq) => eq.id === q.questionNumber
+        );
         if (questionIndex !== -1) {
           essayQuestions[questionIndex].answer = q.answer;
         }
@@ -241,7 +277,7 @@ export default function CreateAnswerKeyScreen() {
       examCode: answerKey.code,
       multipleChoiceQuestions,
       trueFalseQuestions,
-      essayQuestions
+      essayQuestions,
     };
     console.log("📋 Setting loaded exam data with full structure:", loadedData);
 
@@ -254,46 +290,60 @@ export default function CreateAnswerKeyScreen() {
     console.log("🔍 Sample Answer JSON:", answerJson);
 
     // Generate multiple choice questions (empty answers)
-    const mcSection = answerJson.find((section: any) => section.sectionType === "MULTIPLE_CHOICE");
-    const multipleChoiceQuestions = mcSection ? mcSection.questions.map((q: any) => ({
-      id: q.questionNumber,
-      answer: null as any
-    })) : [];
+    const mcSection = answerJson.find(
+      (section: any) => section.sectionType === "MULTIPLE_CHOICE"
+    );
+    const multipleChoiceQuestions = mcSection
+      ? mcSection.questions.map((q: any) => ({
+          id: q.questionNumber,
+          answer: null as any,
+        }))
+      : [];
     console.log("📝 Generated MC Questions:", multipleChoiceQuestions);
 
     // Generate true/false questions (empty answers)
-    const tfSection = answerJson.find((section: any) => section.sectionType === "TRUE_FALSE");
-    const trueFalseQuestions = tfSection ? tfSection.questions.map((q: any) => ({
-      id: q.questionNumber,
-      subQuestions: {
-        a: null as any,
-        b: null as any,
-        c: null as any,
-        d: null as any,
-      }
-    })) : [{
-      id: 1,
-      subQuestions: {
-        a: null as any,
-        b: null as any,
-        c: null as any,
-        d: null as any,
-      }
-    }];
+    const tfSection = answerJson.find(
+      (section: any) => section.sectionType === "TRUE_FALSE"
+    );
+    const trueFalseQuestions = tfSection
+      ? tfSection.questions.map((q: any) => ({
+          id: q.questionNumber,
+          subQuestions: {
+            a: null as any,
+            b: null as any,
+            c: null as any,
+            d: null as any,
+          },
+        }))
+      : [
+          {
+            id: 1,
+            subQuestions: {
+              a: null as any,
+              b: null as any,
+              c: null as any,
+              d: null as any,
+            },
+          },
+        ];
 
     // Generate essay questions (empty answers)
-    const essaySection = answerJson.find((section: any) => section.sectionType === "ESSAY_CODE");
-    const essayQuestions = essaySection ? essaySection.questions.map((q: any) => ({
-      id: q.questionNumber,
-      answer: ""
-    })) : [];
+    const essaySection = answerJson.find(
+      (section: any) => section.sectionType === "ESSAY_CODE"
+    );
+    const essayQuestions = essaySection
+      ? essaySection.questions.map((q: any) => ({
+          id: q.questionNumber,
+          answer: "",
+        }))
+      : [];
     console.log("📝 Generated Essay Questions:", essayQuestions);
 
     const newExamData = {
       examCode: examData.examCode,
       multipleChoiceQuestions,
       trueFalseQuestions,
-      essayQuestions
+      essayQuestions,
     };
     console.log("📋 Setting new exam data:", newExamData);
 
@@ -305,16 +355,20 @@ export default function CreateAnswerKeyScreen() {
     console.log("🎯 Generating questions from section config:", sectionConfig);
 
     // Generate multiple choice questions
-    const mcConfig = sectionConfig.find((section: any) => section.sectionType === "MULTIPLE_CHOICE");
+    const mcConfig = sectionConfig.find(
+      (section: any) => section.sectionType === "MULTIPLE_CHOICE"
+    );
     const multipleChoiceQuestions = mcConfig
       ? Array.from({ length: mcConfig.questionCount }, (_, i) => ({
           id: i + 1,
-          answer: null as any
+          answer: null as any,
         }))
       : [];
 
     // Generate true/false questions - multiple questions, each with a,b,c,d
-    const tfConfig = sectionConfig.find((section: any) => section.sectionType === "TRUE_FALSE");
+    const tfConfig = sectionConfig.find(
+      (section: any) => section.sectionType === "TRUE_FALSE"
+    );
     const tfCount = tfConfig ? tfConfig.questionCount : 1;
 
     const trueFalseQuestions = Array.from({ length: tfCount }, (_, i) => ({
@@ -324,36 +378,26 @@ export default function CreateAnswerKeyScreen() {
         b: null as any,
         c: null as any,
         d: null as any,
-      }
+      },
     }));
 
     // Generate essay questions - support both ESSAY and ESSAY_CODE
-    const essayConfig = sectionConfig.find((section: any) =>
-      section.sectionType === "ESSAY" || section.sectionType === "ESSAY_CODE"
+    const essayConfig = sectionConfig.find(
+      (section: any) =>
+        section.sectionType === "ESSAY" || section.sectionType === "ESSAY_CODE"
     );
     const essayQuestions = essayConfig
       ? Array.from({ length: essayConfig.questionCount }, (_, i) => ({
           id: i + 1,
-          answer: ""
+          answer: "",
         }))
       : [];
-
-    console.log("📝 Generated from config:");
-    console.log("- MC Config:", mcConfig);
-    console.log("- TF Config:", tfConfig);
-    console.log("- Essay Config:", essayConfig);
-    console.log("- MC Questions:", multipleChoiceQuestions.length);
-    console.log("- TF Questions:", trueFalseQuestions.length);
-    console.log("- Essay Questions:", essayQuestions.length);
-    console.log("- MC Questions data (first 5):", multipleChoiceQuestions.slice(0, 5));
-    console.log("- TF Questions data:", trueFalseQuestions);
-    console.log("- Essay Questions data:", essayQuestions);
 
     const newExamData = {
       examCode: examData.examCode,
       multipleChoiceQuestions,
       trueFalseQuestions,
-      essayQuestions
+      essayQuestions,
     };
 
     console.log("🎯 Setting new exam data:", newExamData);
@@ -364,7 +408,7 @@ export default function CreateAnswerKeyScreen() {
   const generateDefaultQuestions = () => {
     const multipleChoiceQuestions = Array.from({ length: 5 }, (_, i) => ({
       id: i + 1,
-      answer: null as any
+      answer: null as any,
     }));
 
     const trueFalseQuestions = Array.from({ length: 1 }, (_, i) => ({
@@ -374,26 +418,26 @@ export default function CreateAnswerKeyScreen() {
         b: null as any,
         c: null as any,
         d: null as any,
-      }
+      },
     }));
 
     const essayQuestions = Array.from({ length: 3 }, (_, i) => ({
       id: i + 1,
-      answer: ""
+      answer: "",
     }));
 
-    setExamData(prev => ({
+    setExamData((prev) => ({
       ...prev,
       multipleChoiceQuestions,
       trueFalseQuestions,
-      essayQuestions
+      essayQuestions,
     }));
   };
 
   const handleExamCodeChange = (code: string) => {
     setExamData((prev) => ({ ...prev, examCode: code }));
     // Clear error when user starts typing
-    clearFieldError('examCode');
+    clearFieldError("examCode");
   };
 
   const handleMultipleChoiceAnswer = (
@@ -456,43 +500,43 @@ export default function CreateAnswerKeyScreen() {
         sectionOrder: 1,
         sectionType: "MULTIPLE_CHOICE",
         questions: examData.multipleChoiceQuestions
-          .filter(q => q.answer !== null)
-          .map(q => ({
+          .filter((q) => q.answer !== null)
+          .map((q) => ({
             questionNumber: q.id,
-            answer: q.answer
-          }))
+            answer: q.answer,
+          })),
       },
       // Section 2: True/False
       {
         sectionOrder: 2,
         sectionType: "TRUE_FALSE",
-        questions: examData.trueFalseQuestions.map(q => ({
+        questions: examData.trueFalseQuestions.map((q) => ({
           questionNumber: q.id,
           answer: {
             a: q.subQuestions.a,
             b: q.subQuestions.b,
             c: q.subQuestions.c,
             d: q.subQuestions.d,
-          }
-        }))
+          },
+        })),
       },
       // Section 3: Essay/Code
       {
         sectionOrder: 3,
         sectionType: "ESSAY_CODE",
         questions: examData.essayQuestions
-          .filter(q => q.answer.trim() !== "")
-          .map(q => ({
+          .filter((q) => q.answer.trim() !== "")
+          .map((q) => ({
             questionNumber: q.id,
-            answer: q.answer
-          }))
-      }
+            answer: q.answer,
+          })),
+      },
     ];
 
     return {
       grading_session_id: parseInt(idGradingSesstion as string),
       code: examData.examCode,
-      answer_json: answerJson
+      answer_json: answerJson,
     };
   };
 
@@ -524,7 +568,10 @@ export default function CreateAnswerKeyScreen() {
         // Process Zod errors and map them to field paths
         const errors: Record<string, string> = {};
 
-        console.log("Form validation errors:", JSON.stringify(formResult.error, null, 2));
+        console.log(
+          "Form validation errors:",
+          JSON.stringify(formResult.error, null, 2)
+        );
 
         formResult.error.issues.forEach((issue: any) => {
           const path = issue.path.join(".");
@@ -538,7 +585,10 @@ export default function CreateAnswerKeyScreen() {
       }
 
       const apiData = convertToAPIFormat();
-      console.log("📤 Data trước khi validate:", JSON.stringify(apiData, null, 2));
+      console.log(
+        "📤 Data trước khi validate:",
+        JSON.stringify(apiData, null, 2)
+      );
 
       // Validate API data với schema
       const result = answerSheetKeySchema.safeParse(apiData);
@@ -553,14 +603,17 @@ export default function CreateAnswerKeyScreen() {
       }
 
       const validatedData = result.data;
-      console.log("✅ Data sau khi validate:", JSON.stringify(validatedData, null, 2));
+      console.log(
+        "✅ Data sau khi validate:",
+        JSON.stringify(validatedData, null, 2)
+      );
 
       let response;
       if (isEditing) {
         // Update existing answer key
         const updateData = {
           code: validatedData.code,
-          answerJson: validatedData.answer_json
+          answerJson: validatedData.answer_json,
         };
 
         console.log("🔄 Updating answer key ID:", existingAnswerKey.id);
@@ -569,15 +622,21 @@ export default function CreateAnswerKeyScreen() {
         // Use service for update with ID in URL
         response = await updateAnswerSheetKeyMutation.mutateAsync({
           id: existingAnswerKey.id.toString(),
-          data: updateData
+          data: updateData,
         });
       } else {
         // Create new answer key
-        response = await createAnswerSheetKeyMutation.mutateAsync(validatedData);
+        response = await createAnswerSheetKeyMutation.mutateAsync(
+          validatedData
+        );
       }
 
       showMessage({
-        message: response?.data?.message || (isEditing ? "Cập nhật đáp án thành công!" : "Tạo đáp án thành công!"),
+        message:
+          response?.data?.message ||
+          (isEditing
+            ? "Cập nhật đáp án thành công!"
+            : "Tạo đáp án thành công!"),
         type: "success",
         icon: "success",
       });
@@ -612,7 +671,9 @@ export default function CreateAnswerKeyScreen() {
       <SafeAreaView className="flex-1 bg-white">
         <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="#3B82F6" />
-          <Text className="mt-4 text-gray-600">Đang tải cấu hình bài thi...</Text>
+          <Text className="mt-4 text-gray-600">
+            Đang tải cấu hình bài thi...
+          </Text>
         </View>
       </SafeAreaView>
     );
@@ -658,7 +719,7 @@ export default function CreateAnswerKeyScreen() {
 
       <KeyboardAvoidingView
         className="flex-1"
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={100}
       >
         <ScrollView
@@ -666,48 +727,54 @@ export default function CreateAnswerKeyScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-        {/* Thông tin chung */}
-        <ExamInfoSection
-          examCode={examData.examCode}
-          onExamCodeChange={handleExamCodeChange}
-          error={getFieldError('examCode')}
-        />
+          {/* Thông tin chung */}
+          <ExamInfoSection
+            examCode={examData.examCode}
+            onExamCodeChange={handleExamCodeChange}
+            error={getFieldError("examCode")}
+          />
 
-        {/* Phần 1 - Trắc nghiệm */}
-        <MultipleChoiceSection
-          questions={examData.multipleChoiceQuestions}
-          onAnswerChange={handleMultipleChoiceAnswer}
-          error={getFieldError('multipleChoiceQuestions')}
-        />
+          {/* Phần 1 - Trắc nghiệm */}
+          <MultipleChoiceSection
+            questions={examData.multipleChoiceQuestions}
+            onAnswerChange={handleMultipleChoiceAnswer}
+            error={getFieldError("multipleChoiceQuestions")}
+          />
 
-        {/* Phần 2 - Đúng/sai */}
-        <TrueFalseSection
-          questions={examData.trueFalseQuestions}
-          onAnswerChange={handleTrueFalseAnswer}
-          error={getFieldError('trueFalseQuestions')}
-        />
+          {/* Phần 2 - Đúng/sai */}
+          <TrueFalseSection
+            questions={examData.trueFalseQuestions}
+            onAnswerChange={handleTrueFalseAnswer}
+            error={getFieldError("trueFalseQuestions")}
+          />
 
-        {/* Phần 3 - Tự luận */}
-        <EssaySection
-          questions={examData.essayQuestions}
-          onAnswerChange={handleEssayAnswer}
-          getFieldError={getFieldError}
-        />
+          {/* Phần 3 - Tự luận */}
+          <EssaySection
+            questions={examData.essayQuestions}
+            onAnswerChange={handleEssayAnswer}
+            getFieldError={getFieldError}
+          />
 
-        {/* Save Button */}
-        <TouchableOpacity
-          className="bg-blue-500 rounded-lg py-4 mt-8 mb-8"
-          onPress={handleSave}
-          disabled={isSaving || createAnswerSheetKeyMutation.isPending || updateAnswerSheetKeyMutation.isPending}
-        >
-          {(isSaving || createAnswerSheetKeyMutation.isPending || updateAnswerSheetKeyMutation.isPending) ? (
-            <ActivityIndicator size="small" color="#FFFFFF" />
-          ) : (
-            <Text className="text-white text-xl font-semibold text-center">
-              Lưu đáp án
-            </Text>
-          )}
-        </TouchableOpacity>
+          {/* Save Button */}
+          <TouchableOpacity
+            className="bg-blue-500 rounded-lg py-4 mt-8 mb-8"
+            onPress={handleSave}
+            disabled={
+              isSaving ||
+              createAnswerSheetKeyMutation.isPending ||
+              updateAnswerSheetKeyMutation.isPending
+            }
+          >
+            {isSaving ||
+            createAnswerSheetKeyMutation.isPending ||
+            updateAnswerSheetKeyMutation.isPending ? (
+              <ActivityIndicator size="small" color="#FFFFFF" />
+            ) : (
+              <Text className="text-white text-xl font-semibold text-center">
+                Lưu đáp án
+              </Text>
+            )}
+          </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

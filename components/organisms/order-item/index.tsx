@@ -2,6 +2,11 @@ import { Order, OrderStatus } from "@/types/order";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useMemo } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
+import CancelIcon from "@/assets/images/status/cancel.svg";
+import SuccessIcon from "@/assets/images/status/success.svg";
+import PendingIcon from "@/assets/images/status/pending.svg";
+import RetryIcon from "@/assets/images/status/retry.svg";
+
 type OrderItemProps = {
   item: Order;
   onPress: () => void;
@@ -11,7 +16,7 @@ const OrderItem = ({ item, onPress }: OrderItemProps) => {
     switch (item.status) {
       case "PAID":
         return {
-          icon: "credit-card-check-outline" as const,
+          icon: <SuccessIcon />,
           color: "text-green-500",
           bgColor: "bg-green-100",
         };
@@ -89,11 +94,12 @@ const OrderItem = ({ item, onPress }: OrderItemProps) => {
       <View
         className={`w-12 h-12 rounded-full items-center justify-center ${styleConfig.bgColor}`}
       >
-        <MaterialCommunityIcons
-          name={styleConfig.icon}
+        {/* <MaterialCommunityIcons
+          name=
           size={28}
           className={styleConfig.color}
-        />
+        /> */}
+        {styleConfig.icon}
       </View>
       <View className="flex-1 mx-4">
         <Text

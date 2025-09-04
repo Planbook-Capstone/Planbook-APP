@@ -1,16 +1,16 @@
 import { useGetGradingSessionById } from "@/services/gradingService";
 import { Ionicons } from "@expo/vector-icons";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import React from "react";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import React, { useCallback } from "react";
 import {
   ActivityIndicator,
   SafeAreaView,
   ScrollView,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
-
+import KeyIcon from "@/assets/images/icons/key.svg";
 interface ExamCode {
   id: string;
   code: string;
@@ -24,9 +24,22 @@ export default function ExportResultsScreen() {
   console.log("🔎 ID truyền vào:", idGradingSesstion);
 
   // Gọi API để lấy grading session với answer sheet keys
-  const { data: gradingSessionData, isLoading, error } = useGetGradingSessionById(
-    idGradingSesstion as string,
-    { enabled: !!idGradingSesstion }
+  const {
+    data: gradingSessionData,
+    isLoading,
+    error,
+    refetch,
+  } = useGetGradingSessionById(idGradingSesstion as string, {
+    enabled: !!idGradingSesstion,
+  });
+
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+
+      // nếu cần cleanup thì return 1 hàm ở đây
+      return () => {};
+    }, [refetch]) // <- dependencies ở đây
   );
 
   // Extract answer sheet keys từ response
@@ -38,7 +51,7 @@ export default function ExportResultsScreen() {
       pathname: "/(grading)/createAnswerKey",
       params: {
         examCode: examCode.code,
-        id: idGradingSesstion
+        id: idGradingSesstion,
       },
     });
   };
@@ -63,13 +76,8 @@ export default function ExportResultsScreen() {
         height: 57,
       }}
     >
-      <Ionicons name="key-outline" size={24} color="#292D32" />
-      <Text
-        className="text-xl font-normal text-black ml-3"
-        style={{ fontFamily: "Questrial" }}
-      >
-        {examCode.code}
-      </Text>
+      <KeyIcon />
+      <Text className="text-xl font-questrial ml-3">{examCode.code}</Text>
     </TouchableOpacity>
   );
 
@@ -114,12 +122,14 @@ export default function ExportResultsScreen() {
               Có lỗi xảy ra khi tải danh sách mã đề
             </Text>
           ) : answerSheetKeys && answerSheetKeys.length > 0 ? (
-            answerSheetKeys.map((item: any) => renderExamCodeItem({
-              id: item.id?.toString() || item.code,
-              code: item.code,
-              studentCount: item.total_submissions || 0,
-              isCompleted: item.total_submissions > 0
-            }))
+            answerSheetKeys.map((item: any) =>
+              renderExamCodeItem({
+                id: item.id?.toString() || item.code,
+                code: item.code,
+                studentCount: item.total_submissions || 0,
+                isCompleted: item.total_submissions > 0,
+              })
+            )
           ) : (
             <Text className="text-gray-500 text-center">
               Chưa có mã đề nào được tạo
@@ -131,17 +141,11 @@ export default function ExportResultsScreen() {
         <View className="bg-blue-50 rounded-lg p-4 border border-blue-200">
           <View className="flex-row items-center mb-2">
             <Ionicons name="information-circle" size={20} color="#3B82F6" />
-            <Text
-              className="text-base font-semibold text-blue-900 ml-2"
-              style={{ fontFamily: "CalSans" }}
-            >
+            <Text className="text-base font-calsans text-blue-900 ml-2">
               Hướng dẫn
             </Text>
           </View>
-          <Text
-            className="text-sm text-blue-800"
-            style={{ fontFamily: "Questrial" }}
-          >
+          <Text className="text-sm text-blue-800 font-questrial">
             Bấm vào mã đề để xem và chỉnh sửa đáp án cho từng mã đề cụ thể.
           </Text>
         </View>

@@ -1,7 +1,7 @@
 import { useGetGradingSessions } from "@/services/gradingService";
 import { Ionicons } from "@expo/vector-icons";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useState, useEffect, useMemo } from "react";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -45,12 +45,21 @@ export default function GradingHistoryScreen() {
     isLoading,
     error,
     isFetching,
+    refetch,
   } = useGetGradingSessions(
     [currentPage, pageSize, idBooktype],
     { retry: 1 },
     apiParams
   );
 
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+
+      // nếu cần cleanup thì return 1 hàm ở đây
+      return () => {};
+    }, [refetch]) // <- dependencies ở đây
+  );
   // Effect to handle pagination data
   useEffect(() => {
     if (response?.data?.content) {
