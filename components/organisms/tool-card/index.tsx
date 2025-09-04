@@ -1,11 +1,5 @@
-import {
-  Image,
-  ImageBackground,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-
+import { Image, Text, TouchableOpacity, View } from "react-native";
+import ScanIcon from "@/assets/images/icons/scan-acitve.svg";
 interface ToolCardProps {
   tool: any;
   onPress: () => void;
@@ -17,7 +11,7 @@ function ToolCard({ tool, onPress }: ToolCardProps) {
       {/* Container cho card chính */}
       <View
         className="w-full rounded-2xl overflow-hidden"
-        style={{ height: 185 }}
+        style={{ height: 195 }}
       >
         {/* Background image */}
         <Image
@@ -41,12 +35,13 @@ function ToolCard({ tool, onPress }: ToolCardProps) {
         >
           <View className="w-full h-full p-6">
             {/* Top section với icon */}
-            <View className="w-1/3 h-1/2 -ml-2">
-              <Image
+            <View className="absolute">
+              {/* <Image
                 source={require("@/assets/images/icons/scan-active.png")}
                 className="w-full h-full"
                 resizeMode="cover"
-              />
+              /> */}
+              <ScanIcon />
             </View>
 
             {/* Bottom section với text */}
@@ -69,6 +64,12 @@ function ToolCard({ tool, onPress }: ToolCardProps) {
         <Text className="text-xl font-calsans text-gray-800">{tool.name}</Text>
         <Text className="font-questrial text-sm mt-1" numberOfLines={2}>
           {tool.description}
+        </Text>
+      </View>
+
+      <View className="absolute -top-2 right-9">
+        <Text className="font-questrial text-xl bg-[#F93737] text-white px-4 py-1.5 rounded-full">
+          Mới
         </Text>
       </View>
     </View>
