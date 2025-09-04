@@ -24,11 +24,11 @@ export default function GradingMenuScreen() {
       title: "Chấm điểm",
       onPress: () => router.push(`/scanExam?id=${idGradingSesstion}`),
     },
-    {
-      icon: <SendIcon />,
-      title: "Xuất kết quả",
-      onPress: () => router.push("/exportResults"),
-    },
+    // {
+    //   icon: <SendIcon />,
+    //   title: "Xuất kết quả",
+    //   onPress: () => router.push("/exportResults"),
+    // },
     {
       icon: <ExamIcon />,
       title: "Bài đã chấm",

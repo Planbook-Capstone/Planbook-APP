@@ -31,7 +31,7 @@ export default function TrueFalseSection({
 }: TrueFalseSectionProps) {
   return (
     <View className="mb-8">
-      <Text className="text-xl font-semibold text-black mb-6">
+      <Text className="text-xl font-calsans text-black mb-6">
         Phần 2 - Đúng/sai
       </Text>
 

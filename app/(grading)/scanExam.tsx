@@ -19,7 +19,7 @@ import {
 import DocumentScanner from "react-native-document-scanner-plugin";
 import { showMessage } from "react-native-flash-message";
 import { useCreateStudentSubmission } from "@/services/studentSubmissionService";
-
+import ScanIcon from "@/assets/images/icons/scan-acitve.svg";
 // type SectionType = "MULTIPLE_CHOICE" | "TRUE_FALSE" | "ESSAY";
 
 // interface BaseSection {
@@ -341,15 +341,12 @@ function ScanExamContent() {
   const renderScanButton = () => (
     <View className="flex-1 justify-center items-center px-6 py-8">
       <View>
-        <Image
-          source={require("@/assets/images/icons/scan-active.png")}
-          style={{ width: 100, height: 100 }}
-        />
+        <ScanIcon width={150} height={150} />
       </View>
       <Text className="text-gray-900 text-3xl font-bold text-center mb-3">
         Quét phiếu trả lời
       </Text>
-      <Text className="text-blue-600 text-xl font-semibold text-center mb-3">
+      <Text className="text-blue-600 text-xl font-calsans text-center mb-3">
         {sessionName}
       </Text>
       <Text className="text-gray-600 text-base text-center mb-8 leading-6 max-w-sm">

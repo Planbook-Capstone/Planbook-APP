@@ -19,7 +19,7 @@ export default function EssaySection({
 }: EssaySectionProps) {
   return (
     <View className="mb-8">
-      <Text className="text-xl font-semibold text-black mb-6">
+      <Text className="text-xl font-calsans text-black mb-6">
         Phần 3 - Tự luận
       </Text>
 
