@@ -1,61 +1,61 @@
 import { apiSecondary } from "@/config/axios";
+import { useAcademicYearActiceService } from "@/services/academicYearServices";
 import { useGetGradingSessionById } from "@/services/gradingService";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import * as ImageManipulator from "expo-image-manipulator";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
-import * as MediaLibrary from "expo-media-library";
 import {
   ActivityIndicator,
   Alert,
+  Image as RNImage,
   SafeAreaView,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
-  Image as RNImage,
 } from "react-native";
 import DocumentScanner from "react-native-document-scanner-plugin";
 import { showMessage } from "react-native-flash-message";
-import { useAcademicYearActiceService } from "@/services/academicYearServices";
+import { useCreateStudentSubmission } from "@/services/studentSubmissionService";
 
-type SectionType = "MULTIPLE_CHOICE" | "TRUE_FALSE" | "ESSAY";
+// type SectionType = "MULTIPLE_CHOICE" | "TRUE_FALSE" | "ESSAY";
 
-interface BaseSection {
-  sectionType: SectionType;
-  sectionOrder: number;
-  questionCount: number;
-}
+// interface BaseSection {
+//   sectionType: SectionType;
+//   sectionOrder: number;
+//   questionCount: number;
+// }
 
-interface MultipleChoiceSection extends BaseSection {
-  sectionType: "MULTIPLE_CHOICE" | "ESSAY";
-  pointsPerQuestion: number;
-}
+// interface MultipleChoiceSection extends BaseSection {
+//   sectionType: "MULTIPLE_CHOICE" | "ESSAY";
+//   pointsPerQuestion: number;
+// }
 
-interface TrueFalseSection extends BaseSection {
-  sectionType: "TRUE_FALSE";
-  rule: Record<string, number>;
-}
+// interface TrueFalseSection extends BaseSection {
+//   sectionType: "TRUE_FALSE";
+//   rule: Record<string, number>;
+// }
 
-type Section = MultipleChoiceSection | TrueFalseSection;
+// type Section = MultipleChoiceSection | TrueFalseSection;
 
-function calculateTotalPoints(
-  sections: Section[],
-  decimals: number = 2
-): number {
-  const total = sections.reduce((sum, section) => {
-    if (section.sectionType === "TRUE_FALSE") {
-      const maxRule = Math.max(...Object.values(section.rule));
-      return sum + maxRule * section.questionCount;
-    } else {
-      return sum + section.pointsPerQuestion * section.questionCount;
-    }
-  }, 0);
+// function calculateTotalPoints(
+//   sections: Section[],
+//   decimals: number = 2
+// ): number {
+//   const total = sections.reduce((sum, section) => {
+//     if (section.sectionType === "TRUE_FALSE") {
+//       const maxRule = Math.max(...Object.values(section.rule));
+//       return sum + maxRule * section.questionCount;
+//     } else {
+//       return sum + section.pointsPerQuestion * section.questionCount;
+//     }
+//   }, 0);
 
-  const factor = Math.pow(10, decimals);
-  return Math.round(total * factor) / factor;
-}
+//   const factor = Math.pow(10, decimals);
+//   return Math.round(total * factor) / factor;
+// }
 
 type SectionPart = {
   correct_count: number;
@@ -70,96 +70,6 @@ type Scores = {
   part2: SectionPart;
   part3: SectionPart;
   [key: string]: any; // để bỏ qua các field khác
-};
-
-function calculateTotalCorrect(scores: Scores): number {
-  return (
-    scores.part1.correct_count +
-    scores.part2.correct_count +
-    scores.part3.correct_count
-  );
-}
-
-// === MIME ===
-const getMimeType = (uri: string): string => {
-  if (uri.endsWith(".jpg") || uri.endsWith(".jpeg")) return "image/jpeg";
-  if (uri.endsWith(".png")) return "image/png";
-  if (uri.endsWith(".heic")) return "image/heic";
-  return "image/*";
-};
-
-// === Gửi API ===
-export const uploadAnswerSheetImage = async (
-  imageUri: string,
-  gradingSessionData: any,
-  academicYearData: any
-) => {
-  try {
-    const gradingSessionDataString = JSON.stringify(gradingSessionData);
-
-    const formData = new FormData();
-    const fileName = imageUri.split("/").pop() || "photo.jpg";
-    const mimeType = getMimeType(imageUri);
-
-    formData.append("file", {
-      uri: imageUri,
-      name: fileName,
-      type: mimeType,
-    } as any);
-
-    console.log("gradingSessionDataString ------- ", gradingSessionDataString);
-
-    formData.append("grading_session_data", gradingSessionDataString);
-
-    const res = await apiSecondary.post("/mark-correct-answers/", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-    console.log(
-      "gradingSessionData.sectionConfigJson[0] ------- ",
-      calculateTotalPoints(gradingSessionData.sectionConfigJson)
-    );
-    // console.log("Total points: ",calculateTotalPoints();
-    console.log("📬 academicYearId:", academicYearData.id);
-    console.log("📬 student_code:", res.data.student_code);
-    console.log("📬 exam_code:", res.data.exam_code);
-    console.log("📬 image_base64:", res.data.image_path);
-    console.log("📬 Server response:", res.data.scores);
-    console.log("📬 total_correct:", calculateTotalCorrect(res.data.scores));
-    console.log("📬 score:", res.data.scores.total_score);
-    console.log(
-      "📬 student_answer_json",
-      JSON.stringify(res.data.student_answer_json, null, 2)
-    );
-
-    showMessage({
-      message: "Chấm điểm thành công!",
-      type: "success",
-      icon: "success",
-    });
-    return res.data; // Return data instead of showing alert
-  } catch (e: any) {
-    let message = "Đã xảy ra lỗi không xác định";
-
-    // Nếu có response và có data
-    if (e?.response?.data) {
-      const data = e.response.data;
-      if (typeof data === "string") {
-        message = data;
-      } else if (typeof data === "object" && "message" in data) {
-        message = data.message;
-      }
-    }
-    console.log("message ------- ", message);
-
-    showMessage({
-      message: message,
-      type: "danger", // 'danger' là màu đỏ cho lỗi
-      icon: "danger",
-    });
-    throw e; // Throw error to be handled by caller
-  }
 };
 
 type ScanState =
@@ -198,8 +108,8 @@ function ScanExamContent() {
     return () => clearTimeout(timer);
   }, []);
 
-  const { data: academicYear } = useAcademicYearActiceService();
-
+  const { data: academicYear } = useAcademicYearActiceService();  
+  const createSubmission = useCreateStudentSubmission(); // gọi hook
   const { data: gradingSessionData } = useGetGradingSessionById(
     idGradingSession as string,
     {
@@ -270,10 +180,7 @@ function ScanExamContent() {
 
       // Gọi API chấm điểm
       const result = await uploadAnswerSheetImage(
-        optimized.uri,
-        // uri,
-        gradingSessionData.data,
-        academicYear.data
+        optimized.uri
       );
 
       // Tạo scan result mới
@@ -314,6 +221,134 @@ function ScanExamContent() {
     setScanState("idle");
     setCurrentResult(null);
   };
+
+  function calculateTotalCorrect(scores: Scores): number {
+    return (
+      scores.part1.correct_count +
+      scores.part2.correct_count +
+      scores.part3.correct_count
+    );
+  }
+
+  // === MIME ===
+  const getMimeType = (uri: string): string => {
+    if (uri.endsWith(".jpg") || uri.endsWith(".jpeg")) return "image/jpeg";
+    if (uri.endsWith(".png")) return "image/png";
+    if (uri.endsWith(".heic")) return "image/heic";
+    return "image/*";
+  };
+
+  // === Gửi API ===
+  const uploadAnswerSheetImage = async (
+    imageUri: string
+  ) => {
+    try {
+      const gradingSessionDataString = JSON.stringify(gradingSessionData.data);
+
+      const formData = new FormData();
+      const fileName = imageUri.split("/").pop() || "photo.jpg";
+      const mimeType = getMimeType(imageUri);
+
+      formData.append("file", {
+        uri: imageUri,
+        name: fileName,
+        type: mimeType,
+      } as any);
+
+      console.log(
+        "gradingSessionDataString ------- ",
+        gradingSessionDataString
+      );
+
+      formData.append("grading_session_data", gradingSessionDataString);
+
+      const res = await apiSecondary.post("/mark-correct-answers/", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      // console.log(
+      //   "gradingSessionData.sectionConfigJson[0] ------- ",
+      //   calculateTotalPoints(gradingSessionData.sectionConfigJson)
+      // );
+      // console.log("Total points: ",calculateTotalPoints();
+      console.log("📬 academicYearId:",  academicYear.data.id);
+      console.log("📬 student_code:", res.data.student_code);
+      console.log("📬 exam_code:", res.data.exam_code);
+      console.log("📬 image_base64:", res.data.supabase_url);
+      console.log("📬 Server response:", res.data.scores);
+      console.log("📬 total_correct:", calculateTotalCorrect(res.data.scores));
+      console.log("📬 score:", res.data.scores.total_score);
+      console.log(
+        "📬 student_answer_json",
+        JSON.stringify(res.data.student_answer_json, null, 2)
+      );
+
+      const payload = {
+        grading_session_id: gradingSessionData.data.id,
+        student_code: res.data.student_code,
+        exam_code: res.data.exam_code,
+        image_base64: res.data.supabase_url,
+        total_correct: calculateTotalCorrect(res.data.scores),
+        score: res.data.scores.total_score,
+        academicYearId:  academicYear.data.id,
+        student_answer_json: res.data.student_answer_json,
+      };
+      createSubmission.mutate(payload, {
+        onSuccess: (res) => {
+          showMessage({
+            message: res.data.message,
+            type: "success",
+            icon: "success",
+          });
+        },
+        onError: (e) => {
+          let message = "Đã xảy ra lỗi không xác định";
+
+          // Nếu có response và có data
+          if (e?.response?.data) {
+            const data = e.response.data;
+            if (typeof data === "string") {
+              message = data;
+            } else if (typeof data === "object" && "message" in data) {
+              message = data.message;
+            }
+          }
+          console.log("message ------- ", message);
+
+          showMessage({
+            message: message,
+            type: "danger", // 'danger' là màu đỏ cho lỗi
+            icon: "danger",
+          });
+        },
+      });
+
+      return res.data; // Return data instead of showing alert
+    } catch (e: any) {
+      let message = "Đã xảy ra lỗi không xác định";
+
+      // Nếu có response và có data
+      if (e?.response?.data) {
+        const data = e.response.data;
+        if (typeof data === "string") {
+          message = data;
+        } else if (typeof data === "object" && "message" in data) {
+          message = data.message;
+        }
+      }
+      console.log("message ------- ", message);
+
+      showMessage({
+        message: message,
+        type: "danger", // 'danger' là màu đỏ cho lỗi
+        icon: "danger",
+      });
+      throw e; // Throw error to be handled by caller
+    }
+  };
+
   const renderScanButton = () => (
     <View className="flex-1 justify-center items-center px-6 py-8">
       <View>
