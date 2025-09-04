@@ -34,17 +34,17 @@ export default function GradingMenuScreen() {
       title: "Bài đã chấm",
       onPress: () => router.push(`/gradedPapers?id=${idGradingSesstion}`),
     },
-    {
-      icon: <LayerIcon />,
-      title: "Thống kê",
-      onPress: () => router.push("/statistics"),
-    },
+    // {
+    //   icon: <LayerIcon />,
+    //   title: "Thống kê",
+    //   onPress: () => router.push("/statistics"),
+    // },
 
-    {
-      icon: <InfoIcon />,
-      title: "Thông tin chung",
-      onPress: () => router.push("/generalInfo"),
-    },
+    // {
+    //   icon: <InfoIcon />,
+    //   title: "Thông tin chung",
+    //   onPress: () => router.push("/generalInfo"),
+    // },
   ];
 
   return (

@@ -9,6 +9,7 @@ import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  FlatList,
   Image as RNImage,
   SafeAreaView,
   ScrollView,
@@ -18,8 +19,14 @@ import {
 } from "react-native";
 import DocumentScanner from "react-native-document-scanner-plugin";
 import { showMessage } from "react-native-flash-message";
-import { useCreateStudentSubmission } from "@/services/studentSubmissionService";
+import {
+  useCreateStudentSubmission,
+  useGetStudentSubmissionId,
+} from "@/services/studentSubmissionService";
 import ScanIcon from "@/assets/images/icons/scan-acitve.svg";
+import { formatVietnameseDateTime } from "@/utils/formatDate";
+import ExamIcon from "@/assets/images/icons/exam.svg";
+
 // type SectionType = "MULTIPLE_CHOICE" | "TRUE_FALSE" | "ESSAY";
 
 // interface BaseSection {
@@ -56,6 +63,20 @@ import ScanIcon from "@/assets/images/icons/scan-acitve.svg";
 //   const factor = Math.pow(10, decimals);
 //   return Math.round(total * factor) / factor;
 // }
+
+interface GradedPaper {
+  id: number;
+  score: number;
+  grading_session_id: number;
+  answer_sheet_key_id: number;
+  student_code: string;
+  exam_code: string;
+  image_base64: string;
+  total_correct: number;
+  student_answer_json: any[];
+  created_at: string;
+  updated_at: string;
+}
 
 type SectionPart = {
   correct_count: number;
@@ -116,6 +137,13 @@ function ScanExamContent() {
       enabled: !!idGradingSession,
     }
   );
+  const { data: studentSubmissionData } = useGetStudentSubmissionId(
+    [gradingSessionData.data.id],
+    { retry: 1, staleTime: 0 },
+    {
+      gradingSessionId: gradingSessionData.data.id,
+    }
+  );
 
   const sessionName = gradingSessionData?.data?.name || "Phiên chấm điểm";
 
@@ -128,6 +156,13 @@ function ScanExamContent() {
       </SafeAreaView>
     );
   }
+
+  const getScoreColor = (score: number, maxScore: number) => {
+    const percentage = (score / maxScore) * 100;
+    if (percentage >= 80) return "#10B981";
+    if (percentage >= 65) return "#F59E0B";
+    return "#EF4444";
+  };
 
   const scan = async () => {
     try {
@@ -228,6 +263,55 @@ function ScanExamContent() {
     if (uri.endsWith(".heic")) return "image/heic";
     return "image/*";
   };
+
+  const renderPaperItem = ({ item }: { item: GradedPaper }) => (
+    <TouchableOpacity
+      className="bg-white rounded-xl p-4 mb-3 border border-gray-200"
+      style={{
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
+        elevation: 2,
+      }}
+      onPress={() => {
+        // Navigate to detailed view
+        router.push({
+          pathname: "/(grading)/paperDetail",
+          params: { id: item.id },
+        });
+      }}
+    >
+      <View className="flex-row justify-between items-start mb-2">
+        <View className="flex-1">
+          <Text className="text-sm text-gray-600 font-questrial ">
+            Mã học sinh{" "}
+            <Text className="font-calsans text-xl">{item?.student_code}</Text>
+          </Text>
+        </View>
+        <View className="items-end">
+          <Text
+            className="text-2xl font-bold mb-1"
+            style={{
+              color: getScoreColor(item.score, 10),
+              fontFamily: "CalSans",
+            }}
+          >
+            {item.score}
+          </Text>
+        </View>
+      </View>
+      <View className="flex-row items-center justify-between">
+        <Text
+          className="text-sm text-gray-500"
+          style={{ fontFamily: "Questrial" }}
+        >
+          Chấm lúc: {formatVietnameseDateTime(item?.created_at)}
+        </Text>
+        <Ionicons name="chevron-forward" size={16} color="#9CA3AF" />
+      </View>
+    </TouchableOpacity>
+  );
 
   // === Gửi API ===
   const uploadAnswerSheetImage = async (imageUri: string) => {
@@ -353,10 +437,10 @@ function ScanExamContent() {
         Quét từng phiếu một, hệ thống sẽ tự động chấm điểm sau mỗi lần quét
       </Text>
 
-      {scanResults.length > 0 && (
+      {studentSubmissionData?.data?.length > 0 && (
         <View className="bg-green-50 border border-green-200 px-6 py-4 rounded-xl mb-8">
           <Text className="text-green-700 text-base font-semibold text-center">
-            ✅ Đã quét thành công: {scanResults.length} phiếu
+            ✅ Phiên đã chấm được: {studentSubmissionData?.data?.length} phiếu
           </Text>
         </View>
       )}
@@ -461,38 +545,21 @@ function ScanExamContent() {
       >
         {!uri ? renderScanButton() : renderImagePreview()}
 
-        {scanResults.length > 0 && (
-          <View className="mx-6 mb-6">
-            <Text className="text-gray-900 text-xl font-bold mb-4">
-              Kết quả đã quét ({scanResults.length})
+        {studentSubmissionData?.data?.length > 0 ? (
+          studentSubmissionData?.data.map((item: GradedPaper) => (
+            <View key={item.id.toString()} className="px-[24] pb-[24]">
+              {renderPaperItem({ item })}
+            </View>
+          ))
+        ) : (
+          <View className="items-center justify-center py-12">
+            <ExamIcon width={80} height={80} />
+            <Text className="text-lg font-questrial mt-4">
+              Không có bài đã chấm
             </Text>
-            {scanResults
-              .slice(-3)
-              .reverse()
-              .map((result) => (
-                <View
-                  key={result.id}
-                  className="flex-row items-center justify-between bg-gray-50 border border-gray-200 p-4 rounded-xl mb-3 shadow-sm"
-                >
-                  <View className="flex-1">
-                    <Text className="text-gray-500 text-sm mb-1">
-                      {result.timestamp.toLocaleTimeString("vi-VN")}
-                    </Text>
-                    <Text className="text-gray-900 text-base font-semibold">
-                      Điểm: {result.result?.score || 0}/
-                      {result.result?.total_questions || 0}
-                    </Text>
-                  </View>
-                  <Ionicons name="checkmark-circle" size={28} color="#10b981" />
-                </View>
-              ))}
-            {scanResults.length > 3 && (
-              <Text className="text-gray-500 text-sm text-center mt-2">
-                và {scanResults.length - 3} kết quả khác...
-              </Text>
-            )}
           </View>
         )}
+
       </ScrollView>
     </SafeAreaView>
   );
