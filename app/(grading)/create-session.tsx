@@ -345,7 +345,7 @@ const CreateGradingSessionScreen = () => {
 
               <Text className="mb-1 font-questrial text-lg">Số câu</Text>
               <TextInput
-                placeholder="40"
+                placeholder="18"
                 placeholderTextColor="#9ca3af"
                 keyboardType="numeric"
                 value={formData.section_config_json[0].questionCount.toString()}
@@ -408,7 +408,7 @@ const CreateGradingSessionScreen = () => {
                 Số câu
               </Text>
               <TextInput
-                placeholder="8"
+                placeholder="4"
                 placeholderTextColor="#9ca3af"
                 keyboardType="numeric"
                 value={formData.section_config_json[1].questionCount.toString()}
@@ -518,7 +518,7 @@ const CreateGradingSessionScreen = () => {
                 Điểm / câu
               </Text>
               <TextInput
-                placeholder="0.5"
+                placeholder="0.25"
                 placeholderTextColor="#9ca3af"
                 keyboardType="decimal-pad"
                 value={
