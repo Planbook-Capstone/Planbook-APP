@@ -5,6 +5,7 @@ import { Image } from "expo-image";
 import * as ImageManipulator from "expo-image-manipulator";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
+import * as MediaLibrary from "expo-media-library";
 import {
   ActivityIndicator,
   Alert,
@@ -16,6 +17,68 @@ import {
   Image as RNImage,
 } from "react-native";
 import DocumentScanner from "react-native-document-scanner-plugin";
+import { showMessage } from "react-native-flash-message";
+import { useAcademicYearActiceService } from "@/services/academicYearServices";
+
+type SectionType = "MULTIPLE_CHOICE" | "TRUE_FALSE" | "ESSAY";
+
+interface BaseSection {
+  sectionType: SectionType;
+  sectionOrder: number;
+  questionCount: number;
+}
+
+interface MultipleChoiceSection extends BaseSection {
+  sectionType: "MULTIPLE_CHOICE" | "ESSAY";
+  pointsPerQuestion: number;
+}
+
+interface TrueFalseSection extends BaseSection {
+  sectionType: "TRUE_FALSE";
+  rule: Record<string, number>;
+}
+
+type Section = MultipleChoiceSection | TrueFalseSection;
+
+function calculateTotalPoints(
+  sections: Section[],
+  decimals: number = 2
+): number {
+  const total = sections.reduce((sum, section) => {
+    if (section.sectionType === "TRUE_FALSE") {
+      const maxRule = Math.max(...Object.values(section.rule));
+      return sum + maxRule * section.questionCount;
+    } else {
+      return sum + section.pointsPerQuestion * section.questionCount;
+    }
+  }, 0);
+
+  const factor = Math.pow(10, decimals);
+  return Math.round(total * factor) / factor;
+}
+
+type SectionPart = {
+  correct_count: number;
+  total_questions: number;
+  score: number;
+  points_per_question?: number;
+  rule?: Record<string, number>;
+};
+
+type Scores = {
+  part1: SectionPart;
+  part2: SectionPart;
+  part3: SectionPart;
+  [key: string]: any; // để bỏ qua các field khác
+};
+
+function calculateTotalCorrect(scores: Scores): number {
+  return (
+    scores.part1.correct_count +
+    scores.part2.correct_count +
+    scores.part3.correct_count
+  );
+}
 
 // === MIME ===
 const getMimeType = (uri: string): string => {
@@ -28,10 +91,11 @@ const getMimeType = (uri: string): string => {
 // === Gửi API ===
 export const uploadAnswerSheetImage = async (
   imageUri: string,
-  answerSheetKeys: any[]
+  gradingSessionData: any,
+  academicYearData: any
 ) => {
   try {
-    const correctAnswersString = JSON.stringify(answerSheetKeys);
+    const gradingSessionDataString = JSON.stringify(gradingSessionData);
 
     const formData = new FormData();
     const fileName = imageUri.split("/").pop() || "photo.jpg";
@@ -43,26 +107,58 @@ export const uploadAnswerSheetImage = async (
       type: mimeType,
     } as any);
 
-    console.log("correctAnswersString ------- ", correctAnswersString);
+    console.log("gradingSessionDataString ------- ", gradingSessionDataString);
 
-    formData.append("correct_answers", correctAnswersString);
+    formData.append("grading_session_data", gradingSessionDataString);
 
     const res = await apiSecondary.post("/mark-correct-answers/", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     });
-
-    console.log("📬 Server response:", res.data.student_code);
-    console.log("📬 Server response:", res.data.exam_code);
     console.log(
-      "📬 Server response:",
+      "gradingSessionData.sectionConfigJson[0] ------- ",
+      calculateTotalPoints(gradingSessionData.sectionConfigJson)
+    );
+    // console.log("Total points: ",calculateTotalPoints();
+    console.log("📬 academicYearId:", academicYearData.id);
+    console.log("📬 student_code:", res.data.student_code);
+    console.log("📬 exam_code:", res.data.exam_code);
+    console.log("📬 image_base64:", res.data.image_path);
+    console.log("📬 Server response:", res.data.scores);
+    console.log("📬 total_correct:", calculateTotalCorrect(res.data.scores));
+    console.log("📬 score:", res.data.scores.total_score);
+    console.log(
+      "📬 student_answer_json",
       JSON.stringify(res.data.student_answer_json, null, 2)
     );
+
+    showMessage({
+      message: "Chấm điểm thành công!",
+      type: "success",
+      icon: "success",
+    });
     return res.data; // Return data instead of showing alert
-  } catch (err: any) {
-    console.error("❌ Upload error:", err.message);
-    throw err; // Throw error to be handled by caller
+  } catch (e: any) {
+    let message = "Đã xảy ra lỗi không xác định";
+
+    // Nếu có response và có data
+    if (e?.response?.data) {
+      const data = e.response.data;
+      if (typeof data === "string") {
+        message = data;
+      } else if (typeof data === "object" && "message" in data) {
+        message = data.message;
+      }
+    }
+    console.log("message ------- ", message);
+
+    showMessage({
+      message: message,
+      type: "danger", // 'danger' là màu đỏ cho lỗi
+      icon: "danger",
+    });
+    throw e; // Throw error to be handled by caller
   }
 };
 
@@ -102,6 +198,8 @@ function ScanExamContent() {
     return () => clearTimeout(timer);
   }, []);
 
+  const { data: academicYear } = useAcademicYearActiceService();
+
   const { data: gradingSessionData } = useGetGradingSessionById(
     idGradingSession as string,
     {
@@ -109,7 +207,6 @@ function ScanExamContent() {
     }
   );
 
-  const answerSheetKeys = gradingSessionData?.data?.answer_sheet_keys || [];
   const sessionName = gradingSessionData?.data?.name || "Phiên chấm điểm";
 
   // Show loading while navigation context is recovering
@@ -162,23 +259,28 @@ function ScanExamContent() {
       setScanState("processing");
       setIsProcessing(true);
 
-      // Resize và nén ảnh trước khi upload
+      //   Resize và nén ảnh trước khi upload
       const optimized = await ImageManipulator.manipulateAsync(
         uri,
         [{ resize: { width: 1280 } }],
         { compress: 0.8, format: ImageManipulator.SaveFormat.JPEG }
       );
 
+      // await MediaLibrary.saveToLibraryAsync(optimized.uri);
+
       // Gọi API chấm điểm
       const result = await uploadAnswerSheetImage(
         optimized.uri,
-        answerSheetKeys
+        // uri,
+        gradingSessionData.data,
+        academicYear.data
       );
 
       // Tạo scan result mới
       const newScanResult: ScanResult = {
         id: Date.now().toString(),
         imageUri: optimized.uri,
+        // imageUri: uri,
         result: result,
         timestamp: new Date(),
         status: "success",
