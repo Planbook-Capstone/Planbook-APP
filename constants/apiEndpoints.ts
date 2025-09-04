@@ -12,6 +12,8 @@ export const API_ENDPOINTS = {
     REFRESH_TOKEN: buildEndpoint(ServicePaths.IDENTITY_SERVICE, "/refresh"),
   },
 
+  ACADEMIC_YEARS: buildEndpoint(ServicePaths.WORKSPACE, "/academic-years"),
+
   BOOK_TYPES: buildEndpoint(ServicePaths.IDENTITY_SERVICE, "/book-types"),
 
   WALLET: buildEndpoint(ServicePaths.IDENTITY_SERVICE, "/wallets"),
@@ -24,15 +26,23 @@ export const API_ENDPOINTS = {
     ServicePaths.ACADEMIC_RESOURCE,
     "/academic-resources/internal"
   ),
-  GRADING_SESSIONS: buildEndpoint(ServicePaths.GRADING_SERVICE, "/grading-sessions"),
+  GRADING_SESSIONS: buildEndpoint(
+    ServicePaths.GRADING_SERVICE,
+    "/grading-sessions"
+  ),
   OMR_TEMPLATES: buildEndpoint(ServicePaths.GRADING_SERVICE, "/omr-templates"),
-  ANSWER_SHEET_KEYS: buildEndpoint(ServicePaths.GRADING_SERVICE, "/answer-sheet-keys"),
-  SECTION_CONFIGS: buildEndpoint(ServicePaths.GRADING_SERVICE, "/section-configs"),
+  ANSWER_SHEET_KEYS: buildEndpoint(
+    ServicePaths.GRADING_SERVICE,
+    "/answer-sheet-keys"
+  ),
+  SECTION_CONFIGS: buildEndpoint(
+    ServicePaths.GRADING_SERVICE,
+    "/section-configs"
+  ),
   // Thêm các endpoint khác ở đây
   // PRODUCTS: {
   //   GET_ALL: '/product-service/api/products',
   //   GET_BY_ID: (id: string) => `/product-service/api/products/${id}`,
   // }
-    ORDERS: buildEndpoint(ServicePaths.SUBSCRIPTION, "/orders"),
-
+  ORDERS: buildEndpoint(ServicePaths.SUBSCRIPTION, "/orders"),
 };
